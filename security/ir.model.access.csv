@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_test_survey_manager,test.survey.manager,model_test_survey,base.group_system,1,1,1,1
+access_test_survey_user,test.survey.user,model_test_survey,base.group_user,1,1,1,0
+access_test_question_manager,test.question.manager,model_test_question,base.group_system,1,1,1,1
+access_test_question_user,test.question.user,model_test_question,base.group_user,1,1,1,0
+access_test_question_answer_manager,test.question.answer.manager,model_test_question_answer,base.group_system,1,1,1,1
+access_test_question_answer_user,test.question.answer.user,model_test_question_answer,base.group_user,1,1,1,0
+access_test_user_input_manager,test.user_input.manager,model_test_user_input,base.group_system,1,1,1,1
+access_test_user_input_user,test.user_input.user,model_test_user_input,base.group_user,1,1,1,0
+access_test_user_input_line_manager,test.user_input_line.manager,model_test_user_input_line,base.group_system,1,1,1,1
+access_test_user_input_line_user,test.user_input_line.user,model_test_user_input_line,base.group_user,1,1,1,0

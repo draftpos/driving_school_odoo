@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Wizard Form View -->
+        <record id="view_migrate_questions_form" model="ir.ui.view">
+            <field name="name">test.migrate_questions.view.form</field>
+            <field name="model">test.migrate_questions</field>
+            <field name="arch" type="xml">
+                <form string="Migrate Survey Questions">
+                    <group>
+                        <field name="source_survey_id"/>
+                        <field name="target_survey_id"/>
+                        <field name="copy_answers"/>
+                        <field name="copy_images"/>
+                    </group>
+                    <footer>
+                        <button name="action_migrate" string="Migrate" type="object" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard Action -->
+        <record id="action_migrate_questions" model="ir.actions.act_window">
+            <field name="name">Migrate Survey Questions</field>
+            <field name="res_model">test.migrate_questions</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

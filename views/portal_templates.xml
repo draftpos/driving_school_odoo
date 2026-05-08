@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+<!-- Student Registration Template -->
+        <template id="test_register_page" name="Register Student">
+            <t t-call="website.layout">
+                <div class="wrap">
+                    <div class="container">
+                        <div class="row mt-4">
+                            <div class="col-md-6 offset-md-3">
+                                <h1 class="text-center">Student Registration</h1>
+                                <p class="lead text-center">Please fill in your details to continue</p>
+                                
+                                <t t-if="error">
+                                    <div class="alert alert-danger mt-3">
+                                        <t t-esc="error"/>
+                                    </div>
+                                </t>
+                                
+                                <form method="POST" class="mt-4">
+                                    <div class="form-group">
+                                        <label for="fullname">Full Name</label>
+                                        <input type="text" class="form-control" name="fullname" required="required" placeholder="Enter your full name"/>
+                                    </div>
+                                    
+                                    <div class="form-group mt-3">
+                                        <label for="username">Username</label>
+                                        <input type="text" class="form-control" name="username" required="required" placeholder="Choose a username"/>
+                                    </div>
+                                    
+                                    <div class="form-group mt-3">
+                                        <label for="id_number">ID Number</label>
+                                        <input type="text" class="form-control" name="id_number" required="required" placeholder="Enter your ID number"/>
+                                    </div>
+                                    
+                                    <div class="mt-4 text-center">
+                                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Student Dashboard Template -->
+        <template id="test_student_dashboard" name="My Tests">
+            <t t-call="website.layout">
+                <div class="wrap">
+                    <div class="container">
+<h1 class="mt-4">My Tests</h1>
+                        <p class="lead">Welcome, <t t-esc="user_name"/>!</p>
+                        
+                        <!-- Available Tests -->
+                        
+                        <!-- Available Tests -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <h3>Available Tests</h3>
+                                <t t-if="surveys">
+                                    <div class="row">
+                                        <t t-foreach="surveys" t-as="survey">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title"><t t-esc="survey.title"/></h5>
+                                                        <p class="card-text">
+                                                            <t t-if="survey.description">
+                                                                <t t-raw="survey.description"/>
+                                                            </t>
+                                                            <t t-else="">
+                                                                No description available.
+                                                            </t>
+                                                        </p>
+                                                        <p>
+                                                            <strong>Questions:</strong> <t t-esc="survey.question_count"/>
+                                                        </p>
+                                                        <a t-attf-href="/test/start/{{survey.id}}" class="btn btn-primary">
+                                                            Start Test
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <p class="text-muted">No tests available at the moment.</p>
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <!-- Completed Tests -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <h3>My Completed Tests</h3>
+                                <t t-if="user_inputs">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Test</th>
+                                                <th>Status</th>
+                                                <th>Score</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="user_inputs" t-as="input">
+                                                <tr>
+                                                    <td><t t-esc="input.survey_id.title"/></td>
+                                                    <td>
+                                                        <span class="badge badge-success" t-if="input.state == 'done'">Completed</span>
+                                                        <span class="badge badge-warning" t-else="">In Progress</span>
+                                                    </td>
+                                                    <td>
+                                                        <t t-if="input.scoring_percentage">
+                                                            <t t-esc="input.scoring_percentage"/>%
+                                                        </t>
+                                                        <t t-else="">-</t>
+                                                    </td>
+                                                    <td>
+                                                        <t t-if="input.end_datetime">
+                                                            <t t-esc="input.end_datetime.strftime('%Y-%m-%d %H:%M')"/>
+                                                        </t>
+                                                        <t t-elif="input.start_datetime">
+                                                            <t t-esc="input.start_datetime.strftime('%Y-%m-%d %H:%M')"/>
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-else="">
+                                    <p class="text-muted">You haven't taken any tests yet.</p>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+<!-- Test Take Page with 25 Question Navigator -->
+        <template id="test_take_page" name="Take Test">
+            <t t-call="website.layout">
+                <div class="wrap">
+                    <div class="container">
+                        <h1 class="mt-4"><t t-esc="survey.title"/></h1>
+                        <p class="lead">Answer all questions and click "Finish" when done.</p>
+                        
+                        <!-- Progress -->
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                        t-attf-style="width: {{(len(answered_question_ids) / total_display) * 100}}%"
+                                        t-att-aria-valuenow="len(answered_question_ids)" 
+                                        aria-valuemin="0" 
+                                        t-att-aria-valuemax="total_display">
+                                        <t t-esc="len(answered_question_ids)"/> / <t t-esc="total_display"/> Answered
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Question Navigator (1-25 buttons) -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <h4>Questions: Click to navigate</h4>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <t t-foreach="questions" t-as="q">
+                                        <t t-set="is_answered" t-value="q.id in answered_question_ids"/>
+                                        <a t-attf-href="/test/take/{{survey.id}}/question/#{q_index + 1}" 
+                                           t-attf-class="btn #{'btn-success' if is_answered else 'btn-outline-primary'} btn-sm"
+                                           style="min-width: 40px;">
+                                            <t t-esc="q_index + 1"/>
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-md-12 text-center">
+                                <a t-attf-href="/test/take/{{survey.id}}/question/1" class="btn btn-primary btn-lg">
+                                    Start Answering
+                                </a>
+                                <a t-attf-href="/test/take/{{survey.id}}/finish" class="btn btn-danger btn-lg ms-2">
+                                    Finish
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Test Take Question Page -->
+        <template id="test_take_question_page" name="Take Test Question">
+            <t t-call="website.layout">
+                <div class="wrap">
+                    <div class="container">
+                        <!-- Top Progress Bar -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                        t-attf-style="width: {{(question_number / total_questions) * 100}}%"
+                                        t-att-aria-valuenow="question_number" 
+                                        aria-valuemin="0" 
+                                        t-att-aria-valuemax="total_questions">
+                                        Question <t t-esc="question_number"/> of <t t-esc="total_questions"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Question Card -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                        <h3 class="mb-0">Question <t t-esc="question_number"/></h3>
+                                        <span class="badge badge-light">
+                                            <t t-esc="question_number"/> / <t t-esc="total_questions"/>
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h4 class="card-title"><t t-esc="question.title"/></h4>
+                                        
+                                        <form t-attf-action="/test/take/{{survey.id}}/answer" method="POST">
+                                            <input type="hidden" name="question_id" t-att-value="question.id"/>
+                                            <input type="hidden" name="answer_type" t-att-value="question.question_type"/>
+                                            
+                                            <!-- Free Text Answer -->
+                                            <t t-if="question.question_type == 'free_text'">
+                                                <div class="form-group mt-3">
+                                                    <label for="value_free_text">Your Answer:</label>
+                                                    <textarea class="form-control" name="value_free_text" rows="4" required="required"><t t-if="user_line" t-esc="user_line.value_free_text"/></textarea>
+                                                </div>
+                                            </t>
+                                            
+                                            <!-- Simple Choice -->
+                                            <t t-if="question.question_type == 'simple_choice'">
+                                                <div class="form-group mt-3">
+                                                    <label>Select your answer:</label>
+                                                    <t t-foreach="answers" t-as="answer">
+                                                        <div class="form-check my-2">
+                                                            <input class="form-check-input" type="radio" 
+                                                                t-attf-id="answer_{{answer.id}}" 
+                                                                name="value_suggested" 
+                                                                t-att-value="answer.id"
+                                                                t-att-checked="user_line and user_line.value_suggested == answer.id"/>
+                                                            <label class="form-check-label" t-attf-for="answer_{{answer.id}}">
+                                                                <t t-esc="answer.value"/>
+                                                            </label>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                            
+                                            <!-- Multiple Choice -->
+                                            <t t-if="question.question_type == 'multiple_choice'">
+                                                <div class="form-group mt-3">
+                                                    <label>Select all that apply:</label>
+                                                    <t t-foreach="answers" t-as="answer">
+                                                        <div class="form-check my-2">
+                                                            <input class="form-check-input" type="checkbox" 
+                                                                t-attf-id="answer_{{answer.id}}" 
+                                                                name="value_suggested_ids" 
+                                                                t-att-value="answer.id"/>
+                                                            <label class="form-check-label" t-attf-for="answer_{{answer.id}}">
+                                                                <t t-esc="answer.value"/>
+                                                            </label>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                            
+                                            <!-- Numerical Answer -->
+                                            <t t-if="question.question_type == 'numerical_box'">
+                                                <div class="form-group mt-3">
+                                                    <label for="value_numerical">Your Answer:</label>
+                                                    <input type="number" class="form-control" name="value_numerical" step="any" required="required"
+                                                           t-att-value="user_line.value_numerical if user_line else ''"/>
+                                                </div>
+                                            </t>
+                                            
+                                            <!-- Navigation Buttons -->
+                                            <div class="mt-4 d-flex justify-content-between">
+                                                <t t-if="question_number gt 1">
+                                                    <a t-attf-href="/test/take/{{survey.id}}/question/{{question_number - 1}}" class="btn btn-secondary btn-lg">
+                                                        Previous
+                                                    </a>
+                                                </t>
+                                                <t t-else="">
+                                                    <span></span>
+                                                </t>
+                                                
+                                                <t t-if="question_number lt total_questions">
+                                                    <button type="submit" class="btn btn-success btn-lg">
+                                                        Next
+                                                    </button>
+                                                </t>
+                                                <t t-else="">
+                                                    <button type="submit" class="btn btn-danger btn-lg">
+                                                        Finalise
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bottom Question Navigator -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <h5>Questions: Click to navigate</h5>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <t t-foreach="questions" t-as="q">
+                                        <t t-set="is_answered" t-value="q.id in answered_question_ids"/>
+                                        <a t-attf-href="/test/take/{{survey.id}}/question/#{q_index + 1}" 
+                                           t-attf-class="btn #{'btn-success' if is_answered else 'btn-outline-primary'} btn-sm"
+                                           style="min-width: 40px;">
+                                            <t t-esc="q_index + 1"/>
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+<!-- Test Question Template with Custom Numbering -->
+        <template id="test_question_page" name="Test Question">
+            <t t-call="website.layout">
+                <div class="wrap">
+                    <div class="container">
+                        <!-- Progress Bar at Top -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                        t-attf-style="width: {{(question_number / total_questions) * 100}}%"
+                                        t-att-aria-valuenow="question_number" 
+                                        aria-valuemin="0" 
+                                        t-att-aria-valuemax="total_questions">
+                                        Question <t t-esc="question_number"/> of <t t-esc="total_questions"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Question Card with Custom Numbering -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                        <!-- Custom Numbering Display -->
+                                        <h3 class="mb-0">Question <t t-esc="custom_number"/></h3>
+                                        <!-- Top Right Progress -->
+                                        <span class="badge badge-light">
+                                            <t t-esc="question_number"/> / <t t-esc="total_questions"/>
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h4 class="card-title"><t t-esc="question.title"/></h4>
+                                        
+                                        <form t-attf-action="/test/{{survey.id}}/answer" method="POST">
+                                            <input type="hidden" name="question_id" t-att-value="question.id"/>
+                                            <input type="hidden" name="answer_type" t-att-value="question.question_type"/>
+                                            
+                                            <!-- Free Text Answer -->
+                                            <t t-if="question.question_type == 'free_text'">
+                                                <div class="form-group mt-3">
+                                                    <label for="value_free_text">Your Answer:</label>
+                                                    <textarea class="form-control" name="value_free_text" rows="4" required="required"></textarea>
+                                                </div>
+                                            </t>
+                                            
+                                            <!-- Simple Choice (Radio) -->
+                                            <t t-if="question.question_type == 'simple_choice'">
+                                                <div class="form-group mt-3">
+                                                    <label>Select your answer:</label>
+                                                    <t t-foreach="answers" t-as="answer">
+                                                        <div class="form-check my-2">
+                                                            <input class="form-check-input" type="radio" 
+                                                                t-attf-id="answer_{{answer.id}}" 
+                                                                name="value_suggested" 
+                                                                t-att-value="answer.id"/>
+                                                            <label class="form-check-label" t-attf-for="answer_{{answer.id}}">
+                                                                <t t-esc="answer.value"/>
+                                                            </label>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                            
+                                            <!-- Multiple Choice -->
+                                            <t t-if="question.question_type == 'multiple_choice'">
+                                                <div class="form-group mt-3">
+                                                    <label>Select all that apply:</label>
+                                                    <t t-foreach="answers" t-as="answer">
+                                                        <div class="form-check my-2">
+                                                            <input class="form-check-input" type="checkbox" 
+                                                                t-attf-id="answer_{{answer.id}}" 
+                                                                name="value_suggested_ids" 
+                                                                t-att-value="answer.id"/>
+                                                            <label class="form-check-label" t-attf-for="answer_{{answer.id}}">
+                                                                <t t-esc="answer.value"/>
+                                                            </label>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                            
+                                            <!-- Numerical Answer -->
+                                            <t t-if="question.question_type == 'numerical_box'">
+                                                <div class="form-group mt-3">
+                                                    <label for="value_numerical">Your Answer:</label>
+                                                    <input type="number" class="form-control" name="value_numerical" step="any" required="required"/>
+                                                </div>
+                                            </t>
+                                            
+<!-- Navigation Buttons at Bottom -->
+                                            <div class="mt-4 d-flex justify-content-between">
+                                                <!-- Previous Button -->
+                                                <t t-if="question_number gt 1">
+                                                    <a t-attf-href="/test/{{survey.id}}/question/{{question_number - 1}}" class="btn btn-secondary btn-lg">
+                                                        Previous
+                                                    </a>
+                                                </t>
+                                                <t t-else="">
+                                                    <span></span>
+                                                </t>
+                                                
+                                                <!-- Next or Finalise Button -->
+                                                <t t-if="question_number lt total_questions">
+                                                    <button type="submit" class="btn btn-success btn-lg">
+                                                        Next
+                                                    </button>
+                                                </t>
+                                                <t t-else="">
+                                                    <button type="submit" class="btn btn-danger btn-lg">
+                                                        Finalise
+                                                    </button>
+                                                </t>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Test Results Template -->
+        <template id="test_results_page" name="Test Results">
+            <t t-call="website.layout">
+                <div class="wrap">
+                    <div class="container">
+                        <div class="row mt-4">
+                            <div class="col-md-12 text-center">
+                                <h1>Test Results</h1>
+                                
+                                <div class="card mt-4">
+                                    <div class="card-body">
+                                        <h3><t t-esc="user_input.survey_id.title"/></h3>
+                                        
+                                        <div class="mt-4">
+                                            <h4>Your Score: <t t-esc="user_input.scoring_percentage"/>%</h4>
+                                            
+                                            <t t-if="user_input.scoring_success">
+                                                <div class="alert alert-success mt-3">
+                                                    <h3>Congratulations! You Passed!</h3>
+                                                </div>
+                                            </t>
+                                            <t t-else="">
+                                                <div class="alert alert-warning mt-3">
+                                                    <h3>Keep Trying!</h3>
+                                                </div>
+                                            </t>
+                                        </div>
+                                        
+                                        <div class="mt-4">
+                                            <a href="/test/my" class="btn btn-primary">Back to My Tests</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

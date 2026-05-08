@@ -1,0 +1,112 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Odoo specific
+*.pyc
+*.pyo
+*.mo
+*.odt
+*.ods
+*.odp
+*.odb
+*.odg
+*.pdf
+*.zip
+*.sql
+*.db
+*.log
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-*
+.project
+.pydevproject
+.settings/
+
+# Database dumps
+*.sql
+*.dump
+*.backup
+
+# Session files
+sessions/
+
+# Virtual environment
+venv/
+venv2/
+venv3/
+
+# Odoo filestore
+filestore/
+.filestore/
+
+# Odoo logs
+*.log
+odoo.log
+odoo-server.log
+
+# Odoo local configuration
+*.conf
+odoo.conf
+odoo-bin.conf
+
+# Backup files
+*.bak
+*.backup
+*.old
+.TODO.md
+TODO.md
+TODO_*.md
+
+# Temporary files
+/tmp/
+temp/
+*.tmp
+
+# Custom scripts (add specific ones you don't want to track)
+add_users.py
+check_*.py
+create_*.py
+fix_*.py
+load_*.py
+reset_*.py
+set_password.py
+setup_data.py
+simple_check.py
+frappe_to_*.py
+frappe_*.py
+cd
+*.bat
+
+# Directories to ignore
+/my_first_module/
+/openeducat_*/
+/school_*/
+/survey/
+!/survey/__init__.py  # if you need to keep the module structure
+/account_edi_ubl_cii/
+/venv/
+
+# Odoo 2 directory (if it's a separate installation)
+odoo2/
+
+# Other
+*.json
+!package.json
+*.cache
+.pytest_cache/
+.coverage
+htmlcov/
