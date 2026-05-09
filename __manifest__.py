@@ -2,7 +2,7 @@
 {
     'name': "Test",
     'category': 'Generic Modules/Tools',
-    'version': '19.0.1.0.0',
+'version': '19.0.1.0.1',
     'summary': 'Test Application',
     'description': """Test Application - Similar to Survey Module
 This module provides test/assessment functionality with questions,
@@ -14,6 +14,7 @@ user inputs, and scoring capabilities.
 'depends': [
         'base',
         'mail',
+        'website',
     ],
 'data': [
         'security/ir.model.access.csv',

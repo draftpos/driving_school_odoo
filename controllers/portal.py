@@ -88,8 +88,11 @@ class TestStudentPortal(http.Controller):
         values = {'error': error, 'page_name': 'test_register'}
         return request.render('test.test_register_page', values)
 
-    @route(['/test/start/<model("test.survey"):survey>'], type='http', auth='user', website=True)
-    def test_start(self, survey, **kw):
+    @route(['/test/start/<int:survey_id>'], type='http', auth='user', website=True)
+    def test_start(self, survey_id, **kw):
+        survey = request.env['test.survey'].sudo(1).browse(survey_id)
+        if not survey.exists():
+            return request.redirect('/test/my')
         return self._start_test_by_survey(survey)
 
     @route(['/test/start/token/<string:token>'], type='http', auth='user', website=True)

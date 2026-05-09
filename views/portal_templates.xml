@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+<!-- Asset Bundle for Test Module CSS -->
+        <template id="test_portal_css" name="Test Portal CSS">
+            <link rel="stylesheet" type="text/css" href="/test/static/src/css/test_portal.css"/>
+        </template>
+
 <!-- Student Registration Template -->
         <template id="test_register_page" name="Register Student">
             <t t-call="website.layout">
-                <div class="wrap">
-                    <div class="container">
+                <link rel="stylesheet" type="text/css" href="/test/static/src/css/test_portal.css"/>
+                <div class="test-portal-container">
+                    <div class="registration-container">
                         <div class="row mt-4">
                             <div class="col-md-6 offset-md-3">
-                                <h1 class="text-center">Student Registration</h1>
-                                <p class="lead text-center">Please fill in your details to continue</p>
+                                <h1 class="text-center registration-title">Student Registration</h1>
+                                <p class="lead text-center registration-subtitle">Please fill in your details to continue</p>
                                 
                                 <t t-if="error">
                                     <div class="alert alert-danger mt-3">
@@ -20,21 +26,21 @@
                                 <form method="POST" class="mt-4">
                                     <div class="form-group">
                                         <label for="fullname">Full Name</label>
-                                        <input type="text" class="form-control" name="fullname" required="required" placeholder="Enter your full name"/>
+                                        <input type="text" class="form-control form-control-test" name="fullname" required="required" placeholder="Enter your full name"/>
                                     </div>
                                     
                                     <div class="form-group mt-3">
                                         <label for="username">Username</label>
-                                        <input type="text" class="form-control" name="username" required="required" placeholder="Choose a username"/>
+                                        <input type="text" class="form-control form-control-test" name="username" required="required" placeholder="Choose a username"/>
                                     </div>
                                     
                                     <div class="form-group mt-3">
                                         <label for="id_number">ID Number</label>
-                                        <input type="text" class="form-control" name="id_number" required="required" placeholder="Enter your ID number"/>
+                                        <input type="text" class="form-control form-control-test" name="id_number" required="required" placeholder="Enter your ID number"/>
                                     </div>
                                     
                                     <div class="mt-4 text-center">
-                                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                                        <button type="submit" class="btn-register">Register</button>
                                     </div>
                                 </form>
                             </div>
@@ -44,12 +50,13 @@
             </t>
         </template>
         
-        <!-- Student Dashboard Template -->
+<!-- Student Dashboard Template -->
         <template id="test_student_dashboard" name="My Tests">
             <t t-call="website.layout">
+                <link rel="stylesheet" type="text/css" href="/test/static/src/css/test_portal.css"/>
                 <div class="wrap">
                     <div class="container">
-<h1 class="mt-4">My Tests</h1>
+                        <h1 class="mt-4">My Tests</h1>
                         <p class="lead">Welcome, <t t-esc="user_name"/>!</p>
                         
                         <!-- Available Tests -->
@@ -76,7 +83,7 @@
                                                         <p>
                                                             <strong>Questions:</strong> <t t-esc="survey.question_count"/>
                                                         </p>
-                                                        <a t-attf-href="/test/start/{{survey.id}}" class="btn btn-primary">
+<a t-attf-href="/test/start/{{survey.id}}" class="btn btn-primary">
                                                             Start Test
                                                         </a>
                                                     </div>
