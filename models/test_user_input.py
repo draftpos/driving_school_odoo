@@ -10,8 +10,11 @@ class TestUserInput(models.Model):
     _description = 'Test User Input'
     _order = 'create_date DESC'
     _rec_name = 'survey_id'
+    _check_company_auto = False  # Disable company check for portal users
 
-    survey_id = fields.Many2one('test.survey', string='Test Survey', required=True, ondelete='cascade')
+    survey_id = fields.Many2one('test.survey', string='Test Survey', required=False, ondelete='cascade')
+    company_id = fields.Many2one('res.company', string='Company',
+        related='survey_id.company_id', store=True)
 
     # User info
     partner_id = fields.Many2one('res.partner', string='Partner')
@@ -54,9 +57,8 @@ class TestUserInput(models.Model):
     ip = fields.Char('IP Address')
     user_agent = fields.Char('User Agent')
 
-    _sql_constraints = [
-        ('unique_access_token', 'unique(access_token)', 'Access token should be unique!'),
-    ]
+    # Odoo 19 uses models.Constraint instead of _sql_constraints
+    _sql_constraints = []
 
     @api.depends(
         'user_input_line_ids.answer_score',

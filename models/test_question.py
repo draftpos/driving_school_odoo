@@ -9,8 +9,11 @@ class TestQuestion(models.Model):
     _description = 'Test Question'
     _rec_name = 'question'
     _order = 'sequence, id'
+    _check_company_auto = True
 
     survey_id = fields.Many2one('test.survey', string='Survey', required=True, ondelete='cascade')
+    company_id = fields.Many2one('res.company', string='Company',
+        related='survey_id.company_id', store=True)
     question = fields.Text(string='Question', required=True, translate=True)
     question_type = fields.Selection([
         ('simple_choice', 'Simple Choice'),

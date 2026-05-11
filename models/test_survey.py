@@ -13,6 +13,7 @@ class TestSurvey(models.Model):
     _order = 'create_date DESC'
     _rec_name = 'title'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _check_company_auto = True
 
     @api.model
     def _get_default_access_token(self):
@@ -88,7 +89,7 @@ class TestSurvey(models.Model):
     is_attempts_limited = fields.Boolean('Limited number of attempts', help="Check this option if you want to limit the number of attempts per user")
     attempts_limit = fields.Integer('Number of attempts', default=1)
 
-    # Statistics
+# Statistics
     answer_count = fields.Integer("Total Responses", compute='_compute_statistics')
     answer_done_count = fields.Integer("Completed", compute='_compute_statistics')
     success_count = fields.Integer("Success", compute='_compute_statistics')
@@ -98,6 +99,10 @@ class TestSurvey(models.Model):
     # Responsible
     user_id = fields.Many2one('res.users', string='Responsible',
         domain=[('share', '=', False)], tracking=True)
+
+    # Company (for multi-company support)
+    company_id = fields.Many2one('res.company', string='Company',
+        default=lambda self: self.env.company)
 
     # User inputs
     user_input_ids = fields.One2many('test.user_input', 'survey_id', string='Responses', readonly=True)
