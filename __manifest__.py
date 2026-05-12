@@ -19,8 +19,16 @@ user inputs, and scoring capabilities.
     'data': [
         'security/ir.model.access.csv',
         'views/test_survey_views.xml',
+        'views/test_settings_views.xml',
         'views/portal_templates.xml',
-    ],
+],
+    'assets': {
+        'web.assets_frontend': [
+            'test/static/src/css/test_portal.css',
+            'test/static/src/css/custom_register.css',
+            'test/static/src/js/test_portal.js',
+        ],
+    },
     'demo': [
         'data/demo_data.xml',
     ],

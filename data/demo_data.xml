@@ -140,7 +140,7 @@
             <field name="constr_mandatory">true</field>
         </record>
         
-        <!-- Demo Question 5 -->
+<!-- Demo Question 5 -->
         <record id="demo_question_5" model="test.question">
             <field name="survey_id" ref="demo_test_survey"/>
             <field name="question">How many years of experience do you have with Odoo?</field>
@@ -149,5 +149,209 @@
             <field name="is_scored">false</field>
             <field name="constr_mandatory">false</field>
         </record>
+        
+        <!-- Driving School Test 2 -->
+        <record id="driving2_survey" model="test.survey">
+            <field name="title">Driving School Test 2</field>
+            <field name="description"><![CDATA[<p>Test your driving knowledge and safety skills!</p>]]></field>
+            <field name="description_done"><![CDATA[<p>Thank you for completing the test!</p>]]></field>
+            <field name="active">true</field>
+            <field name="access_mode">public</field>
+            <field name="questions_layout">page_per_question</field>
+            <field name="questions_selection">all</field>
+            <field name="scoring_type">scoring_with_answers</field>
+            <field name="scoring_success_min">80.0</field>
+        </record>
+        
+        <!-- Driving Q1 -->
+        <record id="driving2_q1" model="test.question">
+            <field name="survey_id" ref="driving2_survey"/>
+            <field name="question">How can driving schools help students overcome highway anxiety?</field>
+            <field name="question_type">simple_choice</field>
+            <field name="sequence">1</field>
+            <field name="is_scored">true</field>
+            <field name="constr_mandatory">true</field>
+            <field name="passing_score">80</field>
+        </record>
+        
+        <!-- Driving Q1 Answer A (Correct) -->
+        <record id="driving2_q1_a" model="test.question.answer">
+            <field name="question_id" ref="driving2_q1"/>
+            <field name="value">Start with short, low-traffic highway merges during off-peak hours.</field>
+            <field name="is_correct">true</field>
+            <field name="answer_score">1</field>
+            <field name="sequence">1</field>
+        </record>
+        
+        <!-- Driving Q1 Answer B -->
+        <record id="driving2_q1_b" model="test.question.answer">
+            <field name="question_id" ref="driving2_q1"/>
+            <field name="value">Use simulated highway scenarios in a driving simulator first.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">2</field>
+        </record>
+        
+        <!-- Driving Q1 Answer C -->
+        <record id="driving2_q1_c" model="test.question.answer">
+            <field name="question_id" ref="driving2_q1"/>
+            <field name="value">Pair anxious students with calm, experienced instructors for gradual exposure.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">3</field>
+        </record>
+        
+        <!-- Driving Q2 -->
+        <record id="driving2_q2" model="test.question">
+            <field name="survey_id" ref="driving2_survey"/>
+            <field name="question">What would make parallel parking easier for new drivers?</field>
+            <field name="question_type">simple_choice</field>
+            <field name="sequence">2</field>
+            <field name="is_scored">true</field>
+            <field name="constr_mandatory">true</field>
+            <field name="passing_score">80</field>
+        </record>
+        
+        <!-- Driving Q2 Answer A (Correct) -->
+        <record id="driving2_q2_a" model="test.question.answer">
+            <field name="question_id" ref="driving2_q2"/>
+            <field name="value">Teach a "reference point" method using stickers on rear windows.</field>
+            <field name="is_correct">true</field>
+            <field name="answer_score">1</field>
+            <field name="sequence">1</field>
+        </record>
+        
+        <!-- Driving Q2 Answer B -->
+        <record id="driving2_q2_b" model="test.question.answer">
+            <field name="question_id" ref="driving2_q2"/>
+            <field name="value">Practice with larger, softer cones before trying between cars.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">2</field>
+        </record>
+        
+        <!-- Driving Q2 Answer C -->
+        <record id="driving2_q2_c" model="test.question.answer">
+            <field name="question_id" ref="driving2_q2"/>
+            <field name="value">Install backup cameras with dynamic parking guidelines in training cars.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">3</field>
+        </record>
+        
+        <!-- Driving Q3 -->
+        <record id="driving2_q3" model="test.question">
+            <field name="survey_id" ref="driving2_survey"/>
+            <field name="question">How might instructors reduce student distraction during lessons?</field>
+            <field name="question_type">simple_choice</field>
+            <field name="sequence">3</field>
+            <field name="is_scored">true</field>
+            <field name="constr_mandatory">true</field>
+            <field name="passing_score">80</field>
+        </record>
+        
+        <!-- Driving Q3 Answer A (Correct) -->
+        <record id="driving2_q3_a" model="test.question.answer">
+            <field name="question_id" ref="driving2_q3"/>
+            <field name="value">Require phones to be placed in a dashboard caddy out of reach.</field>
+            <field name="is_correct">true</field>
+            <field name="answer_score">1</field>
+            <field name="sequence">1</field>
+        </record>
+        
+        <!-- Driving Q3 Answer B -->
+        <record id="driving2_q3_b" model="test.question.answer">
+            <field name="question_id" ref="driving2_q3"/>
+            <field name="value">Use a "two-hand, no-radio" rule for the first five hours.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">2</field>
+        </record>
+        
+        <!-- Driving Q3 Answer C -->
+        <record id="driving2_q3_c" model="test.question.answer">
+            <field name="question_id" ref="driving2_q3"/>
+            <field name="value">Give short verbal cues only, with no extra conversation during complex maneuvers.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">3</field>
+        </record>
+        
+        <!-- Driving Q4 -->
+        <record id="driving2_q4" model="test.question">
+            <field name="survey_id" ref="driving2_survey"/>
+            <field name="question">What could help students remember blind spot checks every time?</field>
+            <field name="question_type">simple_choice</field>
+            <field name="sequence">4</field>
+            <field name="is_scored">true</field>
+            <field name="constr_mandatory">true</field>
+            <field name="passing_score">80</field>
+        </record>
+        
+        <!-- Driving Q4 Answer A (Correct) -->
+        <record id="driving2_q4_a" model="test.question.answer">
+            <field name="question_id" ref="driving2_q4"/>
+            <field name="value">A hand-over-hand breath pattern: "mirror (inhale), shoulder (exhale)".</field>
+            <field name="is_correct">true</field>
+            <field name="answer_score">1</field>
+            <field name="sequence">1</field>
+        </record>
+        
+        <!-- Driving Q4 Answer B -->
+        <record id="driving2_q4_b" model="test.question.answer">
+            <field name="question_id" ref="driving2_q4"/>
+            <field name="value">A small beeping reminder device that triggers before lane changes.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">2</field>
+        </record>
+        
+        <!-- Driving Q4 Answer C -->
+        <record id="driving2_q4_c" model="test.question.answer">
+            <field name="question_id" ref="driving2_q4"/>
+            <field name="value">Sticker decals on side mirrors with a cartoon eye pointing outward.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">3</field>
+        </record>
+        
+        <!-- Driving Q5 -->
+        <record id="driving2_q5" model="test.question">
+            <field name="survey_id" ref="driving2_survey"/>
+            <field name="question">How can driving schools improve night-driving preparedness for teens?</field>
+            <field name="question_type">simple_choice</field>
+            <field name="sequence">5</field>
+            <field name="is_scored">true</field>
+            <field name="constr_mandatory">true</field>
+            <field name="passing_score">80</field>
+        </record>
+        
+        <!-- Driving Q5 Answer A (Correct) -->
+        <record id="driving2_q5_a" model="test.question.answer">
+            <field name="question_id" ref="driving2_q5"/>
+            <field name="value">Schedule at least two required night lessons before licensing.</field>
+            <field name="is_correct">true</field>
+            <field name="answer_score">1</field>
+            <field name="sequence">1</field>
+        </record>
+        
+        <!-- Driving Q5 Answer B -->
+        <record id="driving2_q5_b" model="test.question.answer">
+            <field name="question_id" ref="driving2_q5"/>
+            <field name="value">Teach glare reduction techniques (e.g., focusing on road lines).</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">2</field>
+        </record>
+        
+        <!-- Driving Q5 Answer C -->
+        <record id="driving2_q5_c" model="test.question.answer">
+            <field name="question_id" ref="driving2_q5"/>
+            <field name="value">Use practice sessions in low-light parking lots before moving to streets.</field>
+            <field name="is_correct">false</field>
+            <field name="answer_score">0</field>
+            <field name="sequence">3</field>
+        </record>
+        
     </data>
 </odoo>

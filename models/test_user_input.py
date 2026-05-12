@@ -25,6 +25,12 @@ class TestUserInput(models.Model):
     student_fullname = fields.Char('Student Full Name')
     student_username = fields.Char('Student Username')
     student_id_number = fields.Char('Student ID Number')
+    student_class = fields.Selection([
+        ('class1', 'Class 1'),
+        ('class2', 'Class 2'),
+        ('class4', 'Class 4'),
+        ('class2and4', 'Class 2 & 4'),
+    ], string='Student Class')
 
     # State
     state = fields.Selection([

@@ -147,7 +147,411 @@
     text-decoration: underline;
 }
 
-/* Hide Odoo elements */
-.o_login_form, .oe_login_form, #oe_structure_login_top, #oe_structure_login_bottom {
+/* Hide Odoo elements - Only scope to custom register page, not global login */
+.custom-register-wrapper .o_login_form, 
+.custom-register-wrapper .oe_login_form, 
+.custom-register-wrapper #oe_structure_login_top, 
+.custom-register-wrapper #oe_structure_login_bottom {
     display: none !important;
+}
+
+/* =============================================
+   TEST TAKING PAGE STYLES
+   ============================================= */
+
+/* Test Wrapper */
+.test-take-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: #f5f5f5;
+    padding: 40px 20px;
+}
+
+.test-take-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 800px;
+    overflow: hidden;
+}
+
+.test-take-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.test-take-header-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.test-take-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.test-take-header h1 {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.test-take-header p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Top Right Finalise Button */
+.test-finish-btn {
+    background: #dc3545;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.test-finish-btn:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+    color: #ffffff;
+}
+
+/* Progress Bar */
+.test-progress-container {
+    padding: 20px 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+
+.test-progress-bar {
+    height: 8px;
+    border-radius: 10px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.test-progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: #4a90d9;
+    transition: width 0.5s ease;
+}
+
+.test-progress-text {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #666;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Question Navigator */
+.test-navigator {
+    padding: 20px 30px;
+    background: #ffffff;
+    border-bottom: 1px solid #eee;
+}
+
+.test-navigator-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.test-navigator-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.test-navigator-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.test-navigator-btn.answered {
+    background: #28a745;
+    color: #ffffff;
+}
+
+.test-navigator-btn.answered:hover {
+    background: #218838;
+}
+
+.test-navigator-btn.current {
+    background: #4a90d9;
+    color: #ffffff;
+    transform: scale(1.1);
+    box-shadow: 0 2px 10px rgba(74, 144, 217, 0.4);
+}
+
+.test-navigator-btn.unanswered {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #dee2e6;
+}
+
+.test-navigator-btn.unanswered:hover {
+    background: #e9ecef;
+    border-color: #4a90d9;
+    color: #4a90d9;
+}
+
+/* Question Body */
+.test-question-body {
+    padding: 30px;
+}
+
+.test-question-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a90d9;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.test-question-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+    line-height: 1.5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Answer Options */
+.test-answer-group {
+    margin-bottom: 20px;
+}
+
+.test-answer-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.test-answer-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+.test-answer-input:focus {
+    outline: none;
+    border-color: #4a90d9;
+    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+}
+
+.test-answer-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+    min-height: 120px;
+    resize: vertical;
+}
+
+.test-answer-textarea:focus {
+    outline: none;
+    border-color: #4a90d9;
+    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+}
+
+/* Radio/Checkbox Options */
+.test-option {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.test-option:hover {
+    border-color: #4a90d9;
+    background: #f0f7ff;
+}
+
+.test-option input {
+    margin-right: 12px;
+    width: 18px;
+    height: 18px;
+    accent-color: #4a90d9;
+}
+
+.test-option label {
+    color: #333;
+    font-size: 15px;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* Navigation Buttons */
+.test-nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 30px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+.test-prev-btn {
+    background: #6c757d;
+    color: #ffffff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.test-prev-btn:hover {
+    background: #5a6268;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.test-next-btn {
+    background: #4a90d9;
+    color: #ffffff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.test-next-btn:hover {
+    background: #3a7bc8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(74, 144, 217, 0.4);
+    color: #ffffff;
+}
+
+.test-final-btn {
+    background: #28a745;
+    color: #ffffff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.test-final-btn:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+    color: #ffffff;
+}
+
+/* Question Number Display */
+.test-question-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .test-take-wrapper {
+        padding: 20px 10px;
+    }
+    
+    .test-take-card {
+        max-width: 100%;
+    }
+    
+    .test-take-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .test-navigator-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 13px;
+    }
+    
+    .test-nav-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .test-nav-buttons a,
+    .test-nav-buttons button {
+        width: 100%;
+        text-align: center;
+    }
 }

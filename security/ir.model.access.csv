@@ -9,3 +9,5 @@ access_test_user_input_manager,test.user_input.manager,model_test_user_input,bas
 access_test_user_input_user,test.user_input.user,model_test_user_input,base.group_user,1,1,1,0
 access_test_user_input_line_manager,test.user_input_line.manager,model_test_user_input_line,base.group_system,1,1,1,1
 access_test_user_input_line_user,test.user_input_line.user,model_test_user_input_line,base.group_user,1,1,1,0
+access_test_settings_manager,test.settings.manager,model_test_settings,base.group_system,1,1,1,1
+access_test_settings_user,test.settings.user,model_test_settings,base.group_user,1,1,1,0
