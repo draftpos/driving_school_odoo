@@ -65,9 +65,6 @@ class TestUserInput(models.Model):
     ip = fields.Char('IP Address')
     user_agent = fields.Char('User Agent')
 
-    # Odoo 19 uses models.Constraint instead of _sql_constraints
-    _sql_constraints = []
-
     @api.depends(
         'user_input_line_ids.answer_score',
         'user_input_line_ids.answer_is_correct',
@@ -82,12 +79,15 @@ class TestUserInput(models.Model):
             user_input.scoring_total = total_score
 
             if user_input.survey_id.scoring_type != 'no_scoring':
-                # Use the session-specific max score if set, otherwise fallback to survey total
-                max_score = user_input.max_scoring_possible or user_input.survey_id.scoring_max_obtainable or 1
-                user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
-                # Use class-specific passing score if available, otherwise fallback to survey default
                 settings = self.env['test.settings'].sudo().get_default_settings()
-                # Default fallback if no class is found (e.g. legacy records or admin preview)
+                limit = settings.get_questions_limit() or 25
+                
+                # The user wants all results to be "out of 25" (the limit)
+                # regardless of how many questions are actually in the survey.
+                max_score = float(limit)
+                
+                user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
+                # Use class-specific passing score if available
                 passing_score = settings.class4_passing_score or 88
                 
                 if user_input.student_class == 'class1':

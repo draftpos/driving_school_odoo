@@ -99,7 +99,10 @@ class TestStudentPortal(http.Controller):
                 <div class="test-card">
                     <div class="test-card-header"><h3>{survey.title}</h3></div>
                     <div class="test-card-body">
-                        <p>Questions: {survey.question_count}</p>
+                        <t t-set="settings" t-value="request.env['test.settings'].sudo().get_default_settings()"/>
+                        <t t-set="q_limit" t-value="settings.get_questions_limit() or 25"/>
+                        <t t-set="display_q_count" t-value="min(survey.question_count, q_limit)"/>
+                        <p>Questions: {display_q_count}</p>
                         <p>Time Limit: <strong>{limit_text}</strong></p>
                         <p>Avg. Score: {avg_score:.1f}%</p>
                         <div style="margin-top: 15px;"><a href="/test/start/{survey.id}" class="btn btn-start">Start Test</a></div>
@@ -478,7 +481,9 @@ class TestStudentPortal(http.Controller):
                         <span class="badge badge-primary">{completion_count} Participants</span>
                     </div>
                     <div class="test-card-body">
-                        <p style="margin-bottom: 10px; font-size: 0.9em; color: #64748b;">Questions: {survey.question_count}</p>
+                        <p style="margin-bottom: 10px; font-size: 0.9em; color: #64748b;">
+                            Questions: {min(survey.question_count, settings.get_questions_limit() or 25)}
+                        </p>
                         <p style="margin-bottom: 10px; font-size: 0.9em; color: #64748b;">Time Limit: <strong>{limit_text}</strong></p>
                         <p style="margin-bottom: 20px; font-size: 0.9em; color: #64748b;">Avg. Score: {avg_score:.1f}%</p>
                         <a href="/test/take/{survey.id}" class="btn" style="display: block; text-align: center; width: 100%;">Take Test Preview</a>

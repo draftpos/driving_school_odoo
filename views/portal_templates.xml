@@ -27,7 +27,7 @@
             <link rel="stylesheet" type="text/css" href="/test/static/src/css/test_portal.css"/>
         </template>
 
-<!-- Custom Registration Template without Odoo Header/Footer - Uses web.login_layout which already has no header/footer -->
+<!-- Custom Registration Template without Header/Footer - Uses web.login_layout which already has no header/footer -->
         <template id="test_register_page" name="Register Student">
             <t t-call="web.login_layout">
                 <h2 class="text-center mb-4">Student Registration</h2>
@@ -484,7 +484,9 @@
                                         <div class="row g-4 mb-5">
                                             <div class="col-6">
                                                 <div class="p-3 bg-light rounded-4">
-                                                    <div class="h4 fw-bold mb-0"><t t-esc="int(user_input.scoring_total)"/> / <t t-esc="int(user_input.survey_id.scoring_max_obtainable)"/></div>
+                                                    <t t-set="settings" t-value="request.env['test.settings'].sudo().get_default_settings()"/>
+                                                    <t t-set="display_max" t-value="int(settings.get_questions_limit() or 25)"/>
+                                                    <div class="h4 fw-bold mb-0"><t t-esc="int(user_input.scoring_total)"/> / <t t-esc="display_max"/></div>
                                                     <div class="small text-muted">Total Marks</div>
                                                 </div>
                                             </div>
