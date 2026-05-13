@@ -12,14 +12,27 @@ class TestStudentPortal(http.Controller):
 
     @http.route(['/test/debug/settings'], type='http', auth='user', website=True)
     def test_debug_settings(self, **kw):
-        settings_all = request.env['test.settings'].sudo().search([])
-        settings = request.env['test.settings'].sudo().get_default_settings()
-        param = request.env['ir.config_parameter'].sudo().get_param('test.default_time_limit', 'NONE')
+        all_settings = request.env['test.settings'].sudo().search([], order='id ASC')
+        active = request.env['test.settings'].sudo().get_default_settings()
+        rows = ''.join(
+            f"<tr style='background:{'#e0ffe0' if s.id == active.id else 'white'}'>"
+            f"<td style='padding:8px;border:1px solid #ccc'>{s.id}</td>"
+            f"<td style='padding:8px;border:1px solid #ccc'>{s.default_time_limit} mins</td>"
+            f"<td style='padding:8px;border:1px solid #ccc'>{'← ACTIVE (portal reads this)' if s.id == active.id else ''}</td>"
+            f"</tr>"
+            for s in all_settings
+        )
         return f"""
-            <b>Settings Count:</b> {len(settings_all)}<br/>
-            <b>Current Default:</b> {settings.default_time_limit} mins (ID: {settings.id})<br/>
-            <b>System Param:</b> {param}<br/>
-            <b>Class 4 Pass:</b> {settings.class4_passing_score}%
+            <h2>Settings Records in Database</h2>
+            <table style='border-collapse:collapse'>
+                <tr style='background:#667eea;color:white'>
+                    <th style='padding:8px;border:1px solid #ccc'>ID</th>
+                    <th style='padding:8px;border:1px solid #ccc'>Time Limit</th>
+                    <th style='padding:8px;border:1px solid #ccc'>Status</th>
+                </tr>
+                {rows}
+            </table>
+            <br/><b>Portal currently uses: {active.default_time_limit} mins (Record ID: {active.id})</b>
         """
 
     @http.route(['/web'], type='http', auth='public', website=True)
@@ -457,7 +470,7 @@ class TestStudentPortal(http.Controller):
                 avg_score = sum([c.scoring_percentage or 0 for c in completions]) / completion_count if completion_count > 0 else 0
                 
                 settings = request.env['test.settings'].sudo().get_default_settings()
-                limit_text = f"{survey.time_limit} mins" if survey.time_limit > 0 else f"{settings.default_time_limit} mins (Global)"
+                limit_text = f"{settings.default_time_limit} mins"
                 surveys_html += f'''
                 <div class="test-card">
                     <div class="test-card-header">
@@ -709,8 +722,8 @@ class TestStudentPortal(http.Controller):
         # Robust timer calculation using Odoo UTC-aware datetime
         now = fields.Datetime.now()
         start = user_input.start_datetime
-        # Support per-survey time limits (fallback to global settings)
-        limit_mins = survey.time_limit if survey.time_limit > 0 else (settings.default_time_limit or 15)
+        # Timer always reads from global Settings — applies to all tests
+        limit_mins = settings.default_time_limit or 15
         
         elapsed_seconds = (now - start).total_seconds() if start else 0
         seconds_left = int((limit_mins * 60) - elapsed_seconds)

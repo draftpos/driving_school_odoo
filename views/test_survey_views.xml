@@ -93,13 +93,6 @@
                                     </list>
                                 </field>
                             </page>
-                            <page string="Options" name="options">
-                                <group>
-                                    <group string="Time &amp; Scoring">
-                                        <field name="time_limit"/>
-                                    </group>
-                                </group>
-                            </page>
                             <page string="Description" name="description">
                                 <field name="description" placeholder="e.g. The following Test will help us..." options="{'embedded_components': false}" nolabel="1"></field>
                             </page>

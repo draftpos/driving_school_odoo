@@ -10,7 +10,6 @@
                     <sheet>
                         <group string="General Settings">
                             <group>
-                                <field name="default_time_limit"/>
                                 <field name="questions_limit"/>
                             </group>
                             <group>
@@ -21,7 +20,7 @@
                             </group>
                         </group>
 
-                        <group string="Class Passing Scores">
+                        <group string="Options — Class Passing Scores">
                             <group>
                                 <field name="class1_passing_score"/>
                                 <field name="class2_passing_score"/>
@@ -31,11 +30,11 @@
                                 <field name="class2and4_passing_score"/>
                             </group>
                         </group>
-                        
+
                         <group string="Notification Settings">
                             <field name="send_email_notifications"/>
                         </group>
-                        
+
                         <group string="Display Settings">
                             <field name="questions_per_page"/>
                             <field name="show_question_navigator"/>
@@ -45,13 +44,48 @@
             </field>
         </record>
 
-        <!-- Test Settings Action -->
+        <!-- Test Settings Action (act_window - keeps original model type) -->
         <record id="action_test_settings" model="ir.actions.act_window">
-            <field name="name">Test Settings</field>
+            <field name="name">General Settings</field>
             <field name="res_model">test.settings</field>
             <field name="view_mode">form</field>
             <field name="target">current</field>
         </record>
+
+        <!-- Test Options Server Action (new unique ID) -->
+        <record id="action_test_options_open" model="ir.actions.server">
+            <field name="name">Open Test Options</field>
+            <field name="model_id" ref="test.model_test_settings"/>
+            <field name="state">code</field>
+            <field name="code">
+settings = env['test.settings'].get_default_settings()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Options',
+    'res_model': 'test.settings',
+    'view_mode': 'form',
+    'res_id': settings.id,
+    'views': [(env.ref('test.test_settings_options_view_form').id, 'form')],
+    'target': 'current',
+}
+            </field>
+        </record>
+
+        <!-- Test Options View (Class Passing Scores) -->
+        <record id="test_settings_options_view_form" model="ir.ui.view">
+            <field name="name">test.settings.options.form</field>
+            <field name="model">test.settings</field>
+            <field name="arch" type="xml">
+                <form string="Options">
+                    <sheet>
+                        <group string="Test Options">
+                            <field name="default_time_limit" string="Time Limit for All Tests (minutes)"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
 
         <!-- Participants Menu -->
         <menuitem id="menu_test_participants" name="Participants" parent="menu_test_root" action="action_test_student" sequence="40"/>
@@ -59,7 +93,10 @@
         <!-- Settings Parent Menu -->
         <menuitem id="menu_test_settings" name="Settings" parent="menu_test_root" sequence="50"/>
 
-        <!-- Test Settings Menu -->
+        <!-- General Settings Menu Item -->
         <menuitem id="menu_test_settings_form" name="General Settings" parent="menu_test_settings" action="action_test_settings" sequence="10"/>
+
+        <!-- Options Menu Item -->
+        <menuitem id="menu_test_options_form" name="Options" parent="menu_test_settings" action="action_test_options_open" sequence="20"/>
     </data>
 </odoo>

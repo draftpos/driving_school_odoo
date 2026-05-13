@@ -71,10 +71,15 @@ class TestSettings(models.Model):
     
     @api.model
     def get_default_settings(self):
-        """Get the default test settings"""
-        settings = self.search([], limit=1)
+        """Get the default test settings — always return the single settings record."""
+        settings = self.search([], order='id ASC', limit=1)
         if not settings:
             settings = self.create({})
+        else:
+            # Delete any duplicate records, keeping only the first
+            duplicates = self.search([('id', '!=', settings.id)])
+            if duplicates:
+                duplicates.unlink()
         return settings
     
     @api.model
