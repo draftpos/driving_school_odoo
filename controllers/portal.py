@@ -513,7 +513,7 @@ class TestStudentPortal(http.Controller):
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Management - Admin</title>
+    <title>Test Management - Havano</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: "Segoe UI", sans-serif; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; }}
@@ -542,7 +542,7 @@ class TestStudentPortal(http.Controller):
     <div class="dashboard-card">
         <div class="dashboard-header">
             <div class="dashboard-logo"><img src="{company_logo}" alt="Logo"></div>
-            <h1>Test Management - Admin</h1>
+            <h1>Havano Test Management</h1>
             <p>Welcome, {user.name}!</p>
         </div>
         <div class="dashboard-body">
@@ -577,7 +577,7 @@ class TestStudentPortal(http.Controller):
             </section>
 
             <section style="display: flex; gap: 10px; margin-top: 30px;">
-                <a href="/odoo" class="btn" style="width: auto;">Back to Odoo</a>
+                <a href="/odoo" class="btn" style="width: auto;">Back to Havano</a>
                 <a href="/test/my" class="btn" style="width: auto; background: #64748b;">View Student Portal</a>
             </section>
         </div>
