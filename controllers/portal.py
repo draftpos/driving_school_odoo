@@ -10,6 +10,11 @@ from odoo.http import request
 class TestStudentPortal(http.Controller):
     """Student Portal Controller for Test Module"""
 
+    @http.route(['/test/debug/settings'], type='http', auth='user', website=True)
+    def test_debug_settings(self, **kw):
+        settings = request.env['test.settings'].sudo().get_default_settings()
+        return f"Default Time Limit: {settings.default_time_limit} mins<br/>Class 4 Pass: {settings.class4_passing_score}%"
+
     @http.route(['/web'], type='http', auth='public', website=True)
     def web_redirect(self, **kw):
         if request.env.user._is_public():
@@ -526,37 +531,37 @@ class TestStudentPortal(http.Controller):
         if not partner_id:
             return request.redirect('/test/register')
 
-        user_input = request.env['test.user_input'].sudo().search([
+        # Find and cancel/mark as done any existing in-progress attempts to ensure a fresh start
+        existing_attempts = request.env['test.user_input'].sudo().search([
             ('survey_id', '=', survey.id),
             ('partner_id', '=', partner_id),
-            ('state', '=', 'new')], limit=1)
+            ('state', 'in', ['new', 'in_progress'])
+        ])
+        if existing_attempts:
+            existing_attempts.write({'state': 'done'}) # Mark as done to clear them
 
-        if not user_input:
-            registration = request.env['test.user_input'].sudo().search([
-                ('partner_id', '=', partner_id),
-                ('student_fullname', '!=', False),
-                ('student_username', '!=', False),
-                ('survey_id', '=', False),
-            ], order='id desc', limit=1)
-            vals = {
-                'survey_id': survey.id,
-                'partner_id': partner_id,
-                'email': request.env.user.email or '',
-                'access_token': survey.access_token,
-                'start_datetime': datetime.now(),
-            }
-            if registration:
-                vals.update({
-                    'student_fullname': registration.student_fullname,
-                    'student_username': registration.student_username,
-                    'student_class': registration.student_class,
-                })
-            user_input = request.env['test.user_input'].sudo().create(vals)
-        else:
-            # If retrieved an existing one but start_datetime is missing, set it now
-            if not user_input.start_datetime:
-                user_input.sudo().write({'start_datetime': datetime.now()})
-
+        # Always create a fresh attempt for a clean start
+        registration = request.env['test.user_input'].sudo().search([
+            ('partner_id', '=', partner_id),
+            ('student_fullname', '!=', False),
+            ('student_username', '!=', False),
+            ('survey_id', '=', False),
+        ], order='id desc', limit=1)
+        
+        vals = {
+            'survey_id': survey.id,
+            'partner_id': partner_id,
+            'email': request.env.user.email or '',
+            'access_token': survey.access_token,
+            'start_datetime': datetime.now(),
+        }
+        if registration:
+            vals.update({
+                'student_fullname': registration.student_fullname,
+                'student_username': registration.student_username,
+                'student_class': registration.student_class,
+            })
+        user_input = request.env['test.user_input'].sudo().create(vals)
         questions = self._get_questions_for_input(survey, user_input)
         answered_lines = request.env['test.user.input.line'].sudo().search([
             ('user_input_id', '=', user_input.id)])
@@ -588,6 +593,9 @@ class TestStudentPortal(http.Controller):
             'time_limit': settings.default_time_limit,
             'seconds_left': int((user_input.start_datetime + timedelta(minutes=settings.default_time_limit) - datetime.now()).total_seconds()) if settings.default_time_limit and user_input.start_datetime else 0,
         }
+        # DEBUG: Log the time limit
+        print(f"DEBUG: Time Limit from settings is {settings.default_time_limit} minutes")
+        
         return request.render('test.test_take_page', values)
 
     @http.route(['/test/take/<model("test.survey"):survey>/question/<int:q_num>'],

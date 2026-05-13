@@ -286,9 +286,12 @@
                                     
                                     <div class="flex-grow-1 mx-3">
                                         <div class="test-navigator-grid" style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;">
-                                            <t t-foreach="range(1, total_questions + 1)" t-as="q_idx">
+                                            <t t-foreach="questions" t-as="q_item">
+                                                <t t-set="q_idx" t-value="q_item_index + 1"/>
+                                                <t t-set="is_current" t-value="q_idx == question_number"/>
+                                                <t t-set="is_answered" t-value="q_item.id in answered_question_ids"/>
                                                 <a t-attf-href="/test/take/{{survey.id}}/question/{{q_idx}}" 
-                                                   t-attf-class="test-navigator-btn {{'active' if q_idx == question_number else ('answered' if q_idx in answered_question_ids else 'unanswered')}}"
+                                                   t-attf-class="test-navigator-btn {{'active' if is_current else ('answered' if is_answered else 'unanswered')}}"
                                                    style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 11px; transition: all 0.2s;">
                                                     <t t-esc="q_idx"/>
                                                 </a>

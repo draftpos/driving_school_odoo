@@ -1,3 +1,35 @@
+/* Question Navigator Buttons */
+.test-navigator-btn {
+    background: #ffffff;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.test-navigator-btn.active {
+    background: #667eea !important;
+    color: #ffffff !important;
+    border-color: #667eea !important;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.test-navigator-btn.answered {
+    background: #10b981 !important;
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+}
+
+.test-navigator-btn.unanswered {
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
+.test-navigator-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+    z-index: 5;
+}
+
 /* Force hide Odoo navbar and debug tools for a true full-screen experience */
 header.o_navbar, .o_main_navbar, .o_debug_manager {
     display: none !important;
