@@ -61,7 +61,6 @@ class TestStudentPortal(http.Controller):
                 <div class="test-card">
                     <div class="test-card-header"><h3>{survey.title}</h3></div>
                     <div class="test-card-body">
-                        <p>{"No description available." if not survey.description else survey.description}</p>
                         <p><strong>Questions:</strong> {survey.question_count or 0}</p>
                         <a href="/test/start/{survey.id}" class="btn btn-start">Start Test</a>
                     </div>
@@ -97,46 +96,50 @@ class TestStudentPortal(http.Controller):
     <title>My Tests</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; }}
-        .dashboard-card {{ background: #ffffff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); width: 100%; max-width: 800px; overflow: hidden; }}
-        .dashboard-header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; }}
-        .dashboard-header h1 {{ color: #ffffff; font-size: 28px; font-weight: 600; margin: 10px 0 0 0; }}
-        .dashboard-header p {{ color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0; font-size: 14px; }}
-        .dashboard-logo img {{ max-height: 60px; width: auto; margin-bottom: 10px; }}
-        .dashboard-body {{ padding: 30px; }}
-        .section {{ margin-bottom: 30px; }}
-        .section h2 {{ color: #333; font-size: 22px; margin-bottom: 15px; }}
-        .test-card {{ border: 2px solid #e0e0e0; border-radius: 12px; margin-bottom: 15px; overflow: hidden; }}
-        .test-card-header {{ background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; }}
-        .test-card-header h3 {{ margin: 0; color: #333; font-size: 18px; }}
-        .test-card-body {{ padding: 20px; }}
-        .test-card-body p {{ color: #666; margin: 5px 0; }}
-        .btn {{ display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; }}
-        .btn:hover {{ transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); }}
-        table {{ width: 100%; border-collapse: collapse; }}
-        th, td {{ padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }}
-        th {{ background: #f8f9fa; color: #666; font-weight: 600; }}
-        .badge {{ padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }}
-        .badge-success {{ background: #d4edda; color: #155724; }}
-        .badge-warning {{ background: #fff3cd; color: #856404; }}
-        .text-muted {{ color: #999; }}
+        body {{ font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; height: 100vh; width: 100vw; overflow: hidden; background: #f8fafc; }}
+        .dashboard-container {{ height: 100vh; width: 100vw; display: flex; flex-direction: column; }}
+        .dashboard-header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; color: white; }}
+        .dashboard-header h1 {{ font-size: 18px; font-weight: 600; }}
+        .dashboard-logo img {{ max-height: 30px; width: auto; }}
+        .dashboard-body {{ flex: 1; padding: 20px 40px; overflow-y: auto; background: #f1f5f9; }}
+        .section {{ margin-bottom: 25px; }}
+        .section h2 {{ color: #1e293b; font-size: 16px; margin-bottom: 15px; border-left: 3px solid #667eea; padding-left: 12px; }}
+        .test-grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }}
+        .test-card {{ background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow: hidden; transition: transform 0.2s; border: 1px solid #e2e8f0; }}
+        .test-card-header {{ background: #f8fafc; padding: 10px 15px; border-bottom: 1px solid #e2e8f0; }}
+        .test-card-header h3 {{ margin: 0; color: #1e293b; font-size: 14px; font-weight: 600; }}
+        .test-card-body {{ padding: 12px; text-align: center; }}
+        .test-card-body p {{ color: #64748b; margin-bottom: 10px; font-size: 12px; }}
+        .btn {{ display: inline-block; width: 100%; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; }}
+        .btn-outline {{ background: white; color: #667eea; border: 2px solid #667eea; margin-top: 10px; }}
+        table {{ width: 100%; border-collapse: separate; border-spacing: 0; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }}
+        th, td {{ padding: 16px 24px; text-align: left; border-bottom: 1px solid #e2e8f0; }}
+        th {{ background: #f8fafc; color: #64748b; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }}
+        .badge {{ padding: 6px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }}
+        .badge-success {{ background: #dcfce7; color: #166534; }}
+        .badge-warning {{ background: #fef9c3; color: #854d0e; }}
+        @media (max-width: 1200px) {{ .test-grid {{ grid-template-columns: repeat(3, 1fr); }} }}
+        @media (max-width: 900px) {{ .test-grid {{ grid-template-columns: repeat(2, 1fr); }} }}
+        @media (max-width: 600px) {{ .test-grid {{ grid-template-columns: 1fr; }} }}
     </style>
 </head>
 <body>
-    <div class="dashboard-card">
+    <div class="dashboard-container">
         <div class="dashboard-header">
             <div class="dashboard-logo"><img src="{company_logo}" alt="Logo"></div>
-            <h1>My Tests</h1>
-            <p>Welcome, {student_name}!</p>
+            <h1>Student Portal</h1>
+            <div style="text-align: right;">
+                <p>Welcome, <strong>{student_name}</strong></p>
+                <a href="/test/register" style="color: white; font-size: 12px; text-decoration: underline;">Switch Profile</a>
+            </div>
         </div>
         <div class="dashboard-body">
-            <div class="section"><h2>Available Tests</h2>{surveys_html}</div>
             <div class="section">
-                <h2>My Completed Tests</h2>
-                <table>
-                    <thead><tr><th>Test</th><th>Status</th><th>Score</th><th>Date</th></tr></thead>
-                    <tbody>{completed_html}</tbody>
-                </table>
+                <h2>Available Tests</h2>
+                <div class="test-grid">{surveys_html}</div>
+            </div>
+            <div style="margin-top: 20px;">
+                <a href="/web/logout" class="btn btn-outline" style="width: auto; padding: 10px 20px;">Logout</a>
             </div>
         </div>
     </div>
@@ -161,16 +164,25 @@ class TestStudentPortal(http.Controller):
         if request.httprequest.method == 'POST':
             fullname = kw.get('fullname', '').strip()
             username = kw.get('username', '').strip()
-            if not fullname or not username:
-                error = 'Full Name and Username are required.'
+            is_login = kw.get('login_mode') == '1'
+
+            if not username or (not is_login and not fullname):
+                error = 'Required fields are missing.'
             else:
                 existing = request.env['test.user_input'].sudo().search([
                     ('student_username', '=', username)
                 ], limit=1)
+                
                 if existing:
-                    error = 'Username already taken. Please choose another.'
+                    # If username exists and belongs to this partner, just let them in
+                    if existing.partner_id.id == partner_id:
+                        # Update the record so it becomes the 'latest' one for this partner
+                        existing.sudo().write({}) 
+                        return request.redirect('/test/my')
+                    error = 'Username already taken by another user.'
+                elif is_login:
+                    error = 'Username not found. Please register first.'
                 else:
-                    partner_id = user.sudo().partner_id.id if user.sudo().partner_id else False
                     request.env['test.user_input'].sudo().create({
                         'partner_id': partner_id,
                         'email': user.sudo().email or '',
@@ -217,13 +229,13 @@ class TestStudentPortal(http.Controller):
     </style>
 </head>
 <body>
-    <div class="register-card">
+    <div class="register-card" id="main_card">
         <div class="register-header">
             <div class="register-logo"><img src="{company_logo}" alt="Logo"></div>
-            <h1>Student Registration</h1>
-            <p>Please enter your details to continue</p>
+            <h1 id="page_title">Student Registration</h1>
+            <p id="page_subtitle">Please enter your details to continue</p>
         </div>
-        <div class="register-body">
+        <div class="register-body" id="register_section">
             {error_html}
             <form method="POST" action="/test/register">
                 <input type="hidden" name="csrf_token" value="{csrf_token}"/>
@@ -231,10 +243,13 @@ class TestStudentPortal(http.Controller):
                     <label for="fullname">Full Name *</label>
                     <input type="text" id="fullname" name="fullname" required placeholder="Enter your full name">
                 </div>
-<div class="form-group">
+                <div class="form-group">
                     <label for="username">Username *</label>
                     <input type="text" id="username" name="username" required placeholder="Choose a username">
-                    <small style="color:#666; font-size:12px; display:block; margin-top:5px;">This username will be used to identify your test results</small>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <small style="color:#666; font-size:12px;">This username will identify your results</small>
+                        <small style="color:#667eea; font-size:12px; cursor: pointer; font-weight: 600;" onclick="toggleMode('login')">Already registered?</small>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="id_number">ID Number</label>
@@ -246,15 +261,57 @@ class TestStudentPortal(http.Controller):
                         <option value="">Select your class</option>
                         <option value="class1">Class 1</option>
                         <option value="class2">Class 2</option>
-                        <option value="class3">Class 3</option>
                         <option value="class4">Class 4</option>
+                        <option value="class2and4">Class 2 &amp; 4</option>
                     </select>
                 </div>
                 <button type="submit" class="submit-btn">Register &amp; Continue</button>
             </form>
         </div>
-        <div class="register-footer"><a href="/web/logout">Logout</a></div>
+        
+        <div class="register-body" id="login_section" style="display: none;">
+            {error_html}
+            <form method="POST" action="/test/register">
+                <input type="hidden" name="csrf_token" value="{csrf_token}"/>
+                <input type="hidden" name="login_mode" value="1"/>
+                <div class="form-group">
+                    <label for="login_username">Enter your Username</label>
+                    <input type="text" id="login_username" name="username" required placeholder="Your registered username" style="font-size: 18px; text-align: center; border-color: #667eea;">
+                    <p style="margin-top: 15px; color: #64748b; font-size: 13px; text-align: center;">Enter the username you used when you first registered to access your tests.</p>
+                </div>
+                <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Login &amp; Continue</button>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="#" onclick="toggleMode('register')" style="color: #64748b; text-decoration: none; font-size: 14px;">&larr; Back to Registration</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="register-footer"><a href="/web/logout">Logout Account</a></div>
     </div>
+    <script>
+        function toggleMode(mode) {{
+            const reg = document.getElementById('register_section');
+            const log = document.getElementById('login_section');
+            const title = document.getElementById('page_title');
+            const subtitle = document.getElementById('page_subtitle');
+            
+            if (mode === 'login') {{
+                reg.style.display = 'none';
+                log.style.display = 'block';
+                title.innerText = 'Student Login';
+                subtitle.innerText = 'Welcome back! Enter your username';
+            }} else {{
+                reg.style.display = 'block';
+                log.style.display = 'none';
+                title.innerText = 'Student Registration';
+                subtitle.innerText = 'Please enter your details to continue';
+            }}
+        }}
+        // If there was a login error, stay on login mode
+        if (window.location.search.includes('login_mode=1') || "{'login' if kw.get('login_mode') else ''}" === 'login') {{
+            toggleMode('login');
+        }}
+    </script>
 </body>
 </html>'''
         return request.make_response(html, headers=[('Content-Type', 'text/html; charset=utf-8')])
@@ -464,6 +521,20 @@ class TestStudentPortal(http.Controller):
             ('user_input_id', '=', user_input.id)])
         answered_question_ids = answered_lines.mapped('question_id').ids
 
+        # Fetch class-specific passing score and time limit
+        settings = request.env['test.settings'].sudo().get_default_settings()
+        student_class = user_input.student_class
+        passing_score = int(survey.scoring_success_min)
+        
+        if student_class == 'class1':
+            passing_score = settings.class1_passing_score
+        elif student_class == 'class2':
+            passing_score = settings.class2_passing_score
+        elif student_class == 'class4':
+            passing_score = settings.class4_passing_score
+        elif student_class == 'class2and4':
+            passing_score = settings.class2and4_passing_score
+
         values = {
             'survey': survey,
             'questions': questions,
@@ -471,6 +542,8 @@ class TestStudentPortal(http.Controller):
             'answered_question_ids': answered_question_ids,
             'total_display': len(questions),
             'page_name': 'test_take',
+            'passing_score': passing_score,
+            'time_limit': int(survey.time_limit) if survey.is_time_limited else 0,
         }
         return request.render('test.test_take_page', values)
 

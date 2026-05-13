@@ -174,7 +174,7 @@
 .test-take-card {
     width: 100%;
     max-width: 1200px;
-    height: calc(100vh - 100px);
+    height: 100vh;
     background: #ffffff;
     display: flex;
     flex-direction: column;
@@ -206,7 +206,7 @@
 
 .test-take-header h1 {
     color: #ffffff;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 600;
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -370,10 +370,10 @@
 
 /* Question Body */
 .test-question-body {
-    padding: 30px;
+    padding: 15px 30px;
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 20px;
+    padding-bottom: 15px;
 }
 
 .test-question-label {
@@ -387,11 +387,11 @@
 }
 
 .test-question-title {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 600;
     color: #333;
-    margin-bottom: 25px;
-    line-height: 1.5;
+    margin-bottom: 15px;
+    line-height: 1.4;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -500,9 +500,9 @@
     background: #6c757d;
     color: #ffffff;
     border: none;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-size: 15px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -521,9 +521,9 @@
     background: #4a90d9;
     color: #ffffff;
     border: none;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-size: 15px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;

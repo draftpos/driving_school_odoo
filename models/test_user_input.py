@@ -83,7 +83,20 @@ class TestUserInput(models.Model):
             if user_input.survey_id.scoring_type != 'no_scoring':
                 max_score = user_input.survey_id.scoring_max_obtainable or 1
                 user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
-                user_input.scoring_success = user_input.scoring_percentage >= user_input.survey_id.scoring_success_min
+                # Use class-specific passing score if available, otherwise fallback to survey default
+                settings = self.env['test.settings'].sudo().get_default_settings()
+                passing_score = user_input.survey_id.scoring_success_min or 60.0
+                
+                if user_input.student_class == 'class1':
+                    passing_score = settings.class1_passing_score
+                elif user_input.student_class == 'class2':
+                    passing_score = settings.class2_passing_score
+                elif user_input.student_class == 'class4':
+                    passing_score = settings.class4_passing_score
+                elif user_input.student_class == 'class2and4':
+                    passing_score = settings.class2and4_passing_score
+                
+                user_input.scoring_success = user_input.scoring_percentage >= passing_score
             else:
                 user_input.scoring_percentage = 0
                 user_input.scoring_success = False
