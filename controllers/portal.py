@@ -460,6 +460,27 @@ class TestStudentPortal(http.Controller):
         else:
             surveys_html = '<p>No tests available.</p>'
 
+        participants_html = ''
+        recent_inputs = request.env['test.user_input'].sudo().search([
+            ('survey_id', '!=', False),
+            ('state', '=', 'done')
+        ], order='end_datetime desc', limit=20)
+
+        if recent_inputs:
+            for inp in recent_inputs:
+                score = f'{inp.scoring_percentage:.1f}%' if inp.scoring_percentage else '0%'
+                date_str = inp.end_datetime.strftime('%Y-%m-%d %H:%M') if inp.end_datetime else '-'
+                participants_html += f'''
+                <tr>
+                    <td>{inp.student_username or '-'}</td>
+                    <td>{inp.student_fullname or '-'}</td>
+                    <td>{inp.survey_id.title or 'N/A'}</td>
+                    <td><span class="badge badge-success">{score}</span></td>
+                    <td>{date_str}</td>
+                </tr>'''
+        else:
+            participants_html = '<tr><td colspan="5" class="text-muted">No recent participants found.</td></tr>'
+
         company_logo = '/web/binary/company_logo'
         html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -500,10 +521,38 @@ class TestStudentPortal(http.Controller):
         <div class="dashboard-body">
             <div class="stats-row">
                 <div class="stat-card"><h3>{total_tests}</h3><p>Total Tests</p></div>
-                <div class="stat-card"><h3>{total_completions}</h3><p>Completed</p></div>
+                <div class="stat-card"><h3>{total_completions}</h3><p>Total Completions</p></div>
             </div>
-            <section><h2 style="margin-bottom:15px;">All Tests</h2>{surveys_html}</section>
-            <section><a href="/odoo" class="btn">Back to Odoo</a></section>
+            
+            <section>
+                <h2>All Tests</h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    {surveys_html}
+                </div>
+            </section>
+
+            <section>
+                <h2 style="margin-bottom:15px;">Recent Participants</h2>
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0; background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+                    <thead>
+                        <tr style="background: #f8fafc;">
+                            <th style="padding: 16px 20px; text-align: left; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; border-bottom: 1px solid #e2e8f0;">Username</th>
+                            <th style="padding: 16px 20px; text-align: left; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; border-bottom: 1px solid #e2e8f0;">Full Name</th>
+                            <th style="padding: 16px 20px; text-align: left; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; border-bottom: 1px solid #e2e8f0;">Test</th>
+                            <th style="padding: 16px 20px; text-align: left; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; border-bottom: 1px solid #e2e8f0;">Score</th>
+                            <th style="padding: 16px 20px; text-align: left; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; border-bottom: 1px solid #e2e8f0;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {participants_html}
+                    </tbody>
+                </table>
+            </section>
+
+            <section style="display: flex; gap: 10px; margin-top: 30px;">
+                <a href="/odoo" class="btn" style="width: auto;">Back to Odoo</a>
+                <a href="/test/my" class="btn" style="width: auto; background: #64748b;">View Student Portal</a>
+            </section>
         </div>
     </div>
 </body>
@@ -634,7 +683,21 @@ class TestStudentPortal(http.Controller):
 
         answered_lines = request.env['test.user.input.line'].sudo().search([
             ('user_input_id', '=', user_input.id)])
-        answered_question_ids = answered_lines.mapped('question_id').ids
+        # Only include lines that have an actual answer
+        answered_question_ids = []
+        for line in answered_lines:
+            is_answered = False
+            if line.answer_type == 'simple_choice' and line.value_suggested:
+                is_answered = True
+            elif line.answer_type == 'multiple_choice' and line.value_suggested_ids:
+                is_answered = True
+            elif line.answer_type == 'text_box' and line.value_text_box:
+                is_answered = True
+            elif line.answer_type == 'numerical_box' and line.value_numerical:
+                is_answered = True
+            
+            if is_answered:
+                answered_question_ids.append(line.question_id.id)
 
         settings = request.env['test.settings'].sudo().get_default_settings()
         student_class = user_input.student_class
@@ -770,7 +833,12 @@ class TestStudentPortal(http.Controller):
         # plain save — return answered count so the progress bar can update
         answered_lines = request.env['test.user.input.line'].sudo().search([
             ('user_input_id', '=', user_input.id)])
-        answered_count = len(answered_lines.mapped('question_id'))
+        
+        answered_count = 0
+        for line in answered_lines:
+            if line.value_suggested or line.value_suggested_ids or line.value_text_box or line.value_numerical:
+                answered_count += 1
+                
         return self._json({'success': True, 'answered_count': answered_count})
 
     # ------------------------------------------------------------------ #
