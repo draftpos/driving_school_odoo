@@ -114,11 +114,11 @@ class MigrateSurveyQuestions(models.TransientModel):
 
     def _convert_question_type(self, survey_type):
         if not survey_type:
-            return 'free_text'
+            return 'text_box'
         
         mapping = {
-            'char_box': 'free_text',
-            'text_box': 'free_text',
+            'char_box': 'text_box',
+            'text_box': 'text_box',
             'numerical_box': 'numerical_box',
             'date': 'date',
             'datetime': 'datetime',
@@ -126,5 +126,5 @@ class MigrateSurveyQuestions(models.TransientModel):
             'multiple_choice': 'multiple_choice',
             'matrix': 'multiple_choice',
         }
-        result = mapping.get(survey_type, 'free_text')
+        result = mapping.get(survey_type, 'text_box')
         return result

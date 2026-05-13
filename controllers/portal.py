@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import json
+import random
 from odoo import http
 from odoo.http import request
 
@@ -176,7 +177,7 @@ class TestStudentPortal(http.Controller):
                         'student_fullname': fullname,
                         'student_username': username,
                         'student_class': kw.get('student_class', ''),
-                        'student_id_number': '',
+                        'student_id_number': kw.get('id_number', ''),
                         'survey_id': False,
                     })
                     success = True
@@ -230,10 +231,24 @@ class TestStudentPortal(http.Controller):
                     <label for="fullname">Full Name *</label>
                     <input type="text" id="fullname" name="fullname" required placeholder="Enter your full name">
                 </div>
-                <div class="form-group">
+<div class="form-group">
                     <label for="username">Username *</label>
                     <input type="text" id="username" name="username" required placeholder="Choose a username">
                     <small style="color:#666; font-size:12px; display:block; margin-top:5px;">This username will be used to identify your test results</small>
+                </div>
+                <div class="form-group">
+                    <label for="id_number">ID Number</label>
+                    <input type="text" id="id_number" name="id_number" placeholder="Enter your ID number">
+                </div>
+                <div class="form-group">
+                    <label for="student_class">Class</label>
+                    <select id="student_class" name="student_class" style="width:100%; padding:14px 16px; border:2px solid #e0e0e0; border-radius:8px; font-size:15px;">
+                        <option value="">Select your class</option>
+                        <option value="class1">Class 1</option>
+                        <option value="class2">Class 2</option>
+                        <option value="class3">Class 3</option>
+                        <option value="class4">Class 4</option>
+                    </select>
                 </div>
                 <button type="submit" class="submit-btn">Register &amp; Continue</button>
             </form>
@@ -405,7 +420,6 @@ class TestStudentPortal(http.Controller):
         total_questions = len(all_questions)
         questions_limit = request.env['test.settings'].sudo().get_questions_limit()
         if total_questions > questions_limit:
-            import random
             rng = random.Random(user_input.id)   # seed by input id so order is stable
             selected_ids = rng.sample(list(all_questions.ids), questions_limit)
             questions = request.env['test.question'].sudo().browse(selected_ids)
@@ -518,7 +532,7 @@ class TestStudentPortal(http.Controller):
         """Save answer and return JSON so the JS can navigate without a full reload."""
 
         question_id  = int(kw.get('question_id', 0))
-        answer_type  = kw.get('answer_type', 'free_text')
+        answer_type  = kw.get('answer_type', 'text_box')
         action       = kw.get('action', 'save')          # 'save' | 'navigate' | 'finish'
         redirect_to  = kw.get('redirect_to', '')         # target question number for 'navigate'
 
@@ -565,8 +579,8 @@ class TestStudentPortal(http.Controller):
                     'answer_type': answer_type,
                 })
 
-            if answer_type in ['text_box', 'free_text']:
-                user_line.write({'value_free_text': kw.get('value_free_text', '')})
+            if answer_type == 'text_box':
+                user_line.write({'value_text_box': kw.get('value_text_box', '')})
             elif answer_type == 'simple_choice':
                 val = kw.get('value_suggested', 0)
                 if val:

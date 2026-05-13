@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <template id="test_minimal_layout" name="Test Minimal Layout">
+            &lt;!DOCTYPE html&gt;
+            <html>
+                <head>
+                    <meta charset="utf-8"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                    <title t-esc="title or 'Test'"/>
+                    <t t-call-assets="web.assets_frontend"/>
+                    <t t-call="test.test_portal_css"/>
+                    <link rel="stylesheet" href="/test/static/src/css/custom_register.css"/>
+                    <script type="text/javascript" src="/test/static/src/js/test_portal.js"></script>
+                    <t t-out="head or ''"/>
+                </head>
+                <body style="height: 100vh; width: 100vw; overflow: hidden; margin: 0; padding: 0; background: #f8fafc; font-family: 'Inter', system-ui, sans-serif;">
+                    <main style="height: 100%; width: 100%;">
+                        <t t-out="0"/>
+                    </main>
+                </body>
+            </html>
+        </template>
+
 <!-- Asset Bundle for Test Module CSS -->
         <template id="test_portal_css" name="Test Portal CSS">
             <link rel="stylesheet" type="text/css" href="/test/static/src/css/test_portal.css"/>
@@ -32,10 +53,26 @@
                         <input type="text" class="form-control" name="fullname" required="required" placeholder="Enter your full name"/>
                     </div>
                     
-                    <div class="mb-3">
+<div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" name="username" required="required" placeholder="Choose a username"/>
                         <small class="form-text text-muted">This username will be used to identify your test results</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_number" class="form-label">ID Number</label>
+                        <input type="text" class="form-control" name="id_number" placeholder="Enter your ID number"/>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="student_class" class="form-label">Class</label>
+                        <select class="form-control" name="student_class">
+                            <option value="">Select your class</option>
+                            <option value="class1">Class 1</option>
+                            <option value="class2">Class 2</option>
+                            <option value="class3">Class 3</option>
+                            <option value="class4">Class 4</option>
+                        </select>
                     </div>
                     
                     <div class="d-grid mt-4">
@@ -161,53 +198,56 @@
         
 <!-- Test Take Page with 25 Question Navigator -->
         <template id="test_take_page" name="Take Test">
-            <t t-call="website.layout">
-                <div class="wrap">
-                    <div class="container">
-                        <h1 class="mt-4"><t t-esc="survey.title"/></h1>
-                        <p class="lead">Answer all questions and click "Finish" when done.</p>
-                        
-                        <!-- Progress -->
-                        <div class="row mt-3">
-                            <div class="col-md-12">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" 
-                                        t-attf-style="width: {{(len(answered_question_ids) / total_display) * 100}}%"
-                                        t-att-aria-valuenow="len(answered_question_ids)" 
-                                        aria-valuemin="0" 
-                                        t-att-aria-valuemax="total_display">
-                                        <t t-esc="len(answered_question_ids)"/> / <t t-esc="total_display"/> Answered
-                                    </div>
-                                </div>
+            <t t-call="test.test_minimal_layout">
+                <t t-set="title" t-value="survey.title"/>
+                <div class="test-take-wrapper">
+                    <div class="test-take-card">
+                        <div class="test-take-header">
+                            <div class="test-take-header-left">
+                                <!-- Test Name Removed -->
+                            </div>
+                            <div class="test-take-header-right">
+                                <a t-attf-href="/test/my" class="btn btn-outline-light">Back to My Tests</a>
                             </div>
                         </div>
-                        
-                        <!-- Question Navigator (1-25 buttons) -->
-                        <div class="row mt-4">
-                            <div class="col-md-12">
-                                <h4>Questions: Click to navigate</h4>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <t t-foreach="questions" t-as="q">
-                                        <t t-set="is_answered" t-value="q.id in answered_question_ids"/>
-                                        <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" 
-                                           t-attf-class="btn #{'btn-success' if is_answered else 'btn-outline-primary'} btn-sm"
-                                           style="min-width: 40px;">
-                                            <t t-esc="q_index + 1"/>
-                                        </a>
-                                    </t>
-                                </div>
+
+                        <div class="test-question-body d-flex flex-column align-items-center justify-content-center text-center">
+                            <h1 class="mb-4"><t t-esc="survey.title"/></h1>
+                            <div class="lead mb-4" t-if="survey.description">
+                                <t t-raw="survey.description"/>
                             </div>
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <div class="row mt-4">
-                            <div class="col-md-12 text-center">
-                                <a t-attf-href="/test/take/{{survey.id}}/question/1" class="btn btn-primary btn-lg">
+                            <p class="mb-4">Answer all questions and click "Finalise" when done.</p>
+                            
+                            <!-- Progress -->
+                            <div class="w-100 mb-4" style="max-width: 600px;">
+                                <div class="test-progress-bar">
+                                    <div class="test-progress-fill" t-attf-style="width: {{(len(answered_question_ids) / total_display) * 100}}%"></div>
+                                </div>
+                                <p class="test-progress-text"><t t-esc="len(answered_question_ids)"/> / <t t-esc="total_display"/> Answered</p>
+                            </div>
+                            
+                            <div class="d-flex gap-3 mt-4">
+                                <a t-attf-href="/test/take/{{survey.id}}/question/1" class="test-next-btn" style="padding: 15px 40px; font-size: 18px;">
                                     Start Answering
                                 </a>
-                                <a t-attf-href="/test/take/{{survey.id}}/finish" class="btn btn-danger btn-lg ms-2">
-                                    Finish
+                                <a t-attf-href="/test/take/{{survey.id}}/finish" class="test-finish-btn" style="padding: 15px 40px; font-size: 18px;">
+                                    Finalise
                                 </a>
+                            </div>
+                        </div>
+
+                        <!-- Question Navigator -->
+                        <div class="test-navigator">
+                            <p class="test-navigator-title">Questions overview</p>
+                            <div class="test-navigator-buttons">
+                                <t t-foreach="questions" t-as="q">
+                                    <t t-set="is_answered" t-value="q.id in answered_question_ids"/>
+                                    <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" 
+                                       t-attf-class="test-navigator-btn #{'answered' if is_answered else 'unanswered'}"
+                                       style="min-width: 40px;">
+                                        <t t-esc="q_index + 1"/>
+                                    </a>
+                                </t>
                             </div>
                         </div>
                     </div>
@@ -217,56 +257,31 @@
         
 <!-- Test Take Question Page - Custom Design with website.layout -->
         <template id="test_take_question_page" name="Take Test Question">
-            <t t-call="website.layout">
-                <link rel="stylesheet" href="/test/static/src/css/custom_register.css"/>
-                <script type="text/javascript" src="/test/static/src/js/test_portal.js"></script>
+            <t t-call="test.test_minimal_layout">
+                <t t-set="title" t-value="survey.title"/>
                 <div class="test-take-wrapper">
                     <div class="test-take-card">
                         <!-- Header with Finalise Button and Numbering on Right -->
                         <div class="test-take-header">
                             <div class="test-take-header-left">
-                                <h1><t t-esc="survey.title"/></h1>
+                                <span class="test-question-number">Question <t t-esc="question_number"/> of <t t-esc="total_questions"/></span>
+                            </div>
+                            <div class="test-take-header-center">
+                                <span class="test-header-progress" style="color: white; font-weight: 600; font-size: 14px;">Progress: <t t-esc="int(float(question_number)/float(total_questions)*100)"/>%</span>
                             </div>
                             <div class="test-take-header-right">
-                                <span class="test-question-number">Question <t t-esc="question_number"/> of <t t-esc="total_questions"/></span>
                                 <a t-attf-href="/test/take/{{survey.id}}/finish" class="test-finish-btn">Finalise</a>
                             </div>
                         </div>
                         
-                        <!-- Progress Bar -->
-                        <div class="test-progress-container">
-                            <div class="test-progress-bar">
-                                <div class="test-progress-fill" t-attf-style="width: {{float(question_number) / float(total_questions) * 100}}%"></div>
-                            </div>
-                            <p class="test-progress-text">Question <t t-esc="question_number"/> of <t t-esc="total_questions"/></p>
-                        </div>
-                        
-                        <!-- Question Navigator (1-25 buttons) -->
-                        <div class="test-navigator">
-                            <p class="test-navigator-title">Questions: Click to navigate</p>
-                            <div class="test-navigator-buttons">
-                                <t t-foreach="questions" t-as="q">
-                                    <t t-if="q.id in answered_question_ids">
-                                        <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn answered"><t t-esc="q_index + 1"/></a>
-                                    </t>
-                                    <t t-else="">
-                                        <t t-if="q_index + 1 == question_number">
-                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn current"><t t-esc="q_index + 1"/></a>
-                                        </t>
-                                        <t t-else="">
-                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn unanswered"><t t-esc="q_index + 1"/></a>
-                                        </t>
-                                    </t>
-                                </t>
-                            </div>
-                        </div>
+                        <!-- Progress Bar Removed as requested -->
                         
                         <!-- Question Body -->
                         <div class="test-question-body">
                             <p class="test-question-label">Question <t t-esc="question_number"/></p>
                             <h3 class="test-question-title"><t t-esc="question.question"/></h3>
                             
-                            <form t-attf-action="/test/take/{{survey.id}}/answer" method="POST">
+                            <form t-attf-action="/test/take/{{survey.id}}/answer" method="POST" id="test_question_form">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                 <input type="hidden" name="question_id" t-att-value="question.id"/>
                                 <input type="hidden" name="answer_type" t-att-value="question.question_type"/>
@@ -275,15 +290,15 @@
                                 <!-- Text Box Answer -->
                                 <t t-if="question.question_type == 'text_box'">
                                     <div class="test-answer-group">
-                                        <label for="value_free_text" class="test-answer-label">Your Answer:</label>
-                                        <textarea class="test-answer-textarea" name="value_free_text" required="required"><t t-if="user_line" t-esc="user_line.value_free_text"/></textarea>
+                                        <!-- Your Answer Label Removed -->
+                                        <textarea class="test-answer-textarea" name="value_text_box" required="required"><t t-if="user_line" t-esc="user_line.value_text_box"/></textarea>
                                     </div>
                                 </t>
                                 
                                 <!-- Simple Choice -->
                                 <t t-if="question.question_type == 'simple_choice'">
                                     <div class="test-answer-group">
-                                        <label class="test-answer-label">Select your answer:</label>
+                                        <!-- Select your answer Label Removed -->
                                         <t t-foreach="answers" t-as="answer">
                                             <div class="test-option">
                                                 <input type="radio" t-attf-id="answer_{{answer.id}}" name="value_suggested" t-att-value="answer.id" t-att-checked="user_line and user_line.value_suggested.id == answer.id"/>
@@ -296,7 +311,7 @@
                                 <!-- Multiple Choice -->
                                 <t t-if="question.question_type == 'multiple_choice'">
                                     <div class="test-answer-group">
-                                        <label class="test-answer-label">Select all that apply:</label>
+                                        <!-- Select all that apply Label Removed -->
                                         <t t-foreach="answers" t-as="answer">
                                             <div class="test-option">
                                                 <input type="checkbox" t-attf-id="answer_{{answer.id}}" name="value_suggested_ids" t-att-value="answer.id"/>
@@ -325,6 +340,42 @@
                                     </t>
                                 </div>
                             </form>
+                        </div>
+
+                        <!-- Question Navigator (1-25 buttons) - Moved to bottom as requested -->
+                        <div class="test-navigator">
+                            <p class="test-navigator-title">Questions: Click to navigate</p>
+                            <div class="test-navigator-buttons">
+                                <t t-set="is_first" t-value="question_number == 1"/>
+                                <t t-set="is_last" t-value="question_number == total_questions"/>
+                                
+                                <!-- Prev Button before 1 -->
+                                <t t-if="not is_first">
+                                    <a t-attf-href="/test/take/{{survey.id}}/question/{{question_number - 1}}" class="test-navigator-btn unanswered test-prev-btn" style="min-width: 60px;">Prev</a>
+                                </t>
+
+                                <t t-foreach="questions" t-as="q">
+                                    <t t-if="q.id in answered_question_ids">
+                                        <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn answered"><t t-esc="q_index + 1"/></a>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-if="q_index + 1 == question_number">
+                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn current"><t t-esc="q_index + 1"/></a>
+                                        </t>
+                                        <t t-else="">
+                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn unanswered"><t t-esc="q_index + 1"/></a>
+                                        </t>
+                                    </t>
+                                </t>
+
+                                <!-- Next/Finalise Button after 25 -->
+                                <t t-if="not is_last">
+                                    <button type="submit" form="test_question_form" class="test-navigator-btn current test-next-btn" style="min-width: 60px;">Next</button>
+                                </t>
+                                <t t-else="">
+                                    <button type="submit" form="test_question_form" class="test-navigator-btn answered test-final-btn" style="min-width: 80px; background: #28a745;">Finalise</button>
+                                </t>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -371,10 +422,10 @@
                                             <input type="hidden" name="answer_type" t-att-value="question.question_type"/>
                                             
                                             <!-- Free Text Answer -->
-                                            <t t-if="question.question_type == 'free_text'">
+                                            <t t-if="question.question_type == 'text_box'">
                                                 <div class="form-group mt-3">
-                                                    <label for="value_free_text">Your Answer:</label>
-                                                    <textarea class="form-control" name="value_free_text" rows="4" required="required"></textarea>
+                                                    <label for="value_text_box">Your Answer:</label>
+                                                    <textarea class="form-control" name="value_text_box" rows="4" required="required"></textarea>
                                                 </div>
                                             </t>
                                             
@@ -460,99 +511,104 @@
         
 <!-- Test Results Template -->
         <template id="test_results_page" name="Test Results">
-            <t t-call="website.layout">
-                <link rel="stylesheet" href="/test/static/src/css/custom_register.css"/>
-                <script type="text/javascript" src="/test/static/src/js/test_portal.js"></script>
-                <div class="wrap">
-                    <div class="container">
-                        <div class="row mt-4">
-                            <div class="col-md-12 text-center">
-                                <h1>Test Results</h1>
-                                
-                                <div class="card mt-4">
-                                    <div class="card-body">
-                                        <h3><t t-esc="user_input.survey_id.title"/></h3>
-                                        
-                                        <div class="mt-4">
-                                            <!-- Score Display - Both Mark and Percentage -->
-                                            <h4>Your Score: <t t-esc="int(user_input.scoring_percentage)"/>% (<t t-esc="int(user_input.scoring_total)"/> / <t t-esc="int(user_input.survey_id.scoring_max_obtainable)"/> marks)</h4>
-                                            
-                                            <!-- Detailed Score Breakdown -->
-                                            <div class="mt-3">
-                                                <p><strong>Total Score:</strong> <t t-esc="int(user_input.scoring_total)"/> marks out of <t t-esc="int(user_input.survey_id.scoring_max_obtainable)"/> maximum</p>
-                                                <p><strong>Correct Answers:</strong> <t t-esc="user_input.scoring_answers"/> out of <t t-esc="len(user_input.user_input_line_ids)"/> questions answered</p>
-                                            </div>
-                                            
-                                            <t t-if="user_input.scoring_success">
-                                                <div class="alert alert-success mt-3">
-                                                    <h3>Congratulations! You Passed!</h3>
-                                                </div>
-                                            </t>
-                                            <t t-else="">
-                                                <div class="alert alert-warning mt-3">
-                                                    <h3>Keep Trying! You can do better!</h3>
-                                                </div>
-                                            </t>
+            <t t-call="test.test_minimal_layout">
+                <t t-set="title" t-value="'Test Results - ' + user_input.survey_id.title"/>
+                <div class="test-take-wrapper" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); overflow-y: auto;">
+                    <div class="container py-5">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8 col-lg-6">
+                                <!-- Main Result Card -->
+                                <div class="card border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                                    <div class="card-header text-center py-5" t-attf-style="background: {{'linear-gradient(135deg, #059669 0%, #10b981 100%)' if user_input.scoring_success else 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)'}}; color: white;">
+                                        <div class="mb-3">
+                                            <i t-attf-class="fa {{'fa-check-circle' if user_input.scoring_success else 'fa-times-circle'}} fa-4x mb-3"></i>
+                                            <h1 class="fw-bold" t-esc="'PASSED' if user_input.scoring_success else 'FAILED'"/>
                                         </div>
-                                        
-                                        <!-- Preview Questions Button -->
-                                        <div class="mt-4">
-                                            <button type="button" class="btn btn-info" id="preview-btn" onclick="togglePreview()">
-                                                Preview Questions
+                                        <h4 class="opacity-75" t-esc="user_input.survey_id.title"/>
+                                    </div>
+                                    
+                                    <div class="card-body p-5 text-center">
+                                        <!-- Score Circle -->
+                                        <div class="d-inline-flex align-items-center justify-content-center mb-4" style="width: 180px; height: 180px; border-radius: 50%; border: 8px solid #f1f5f9; background: white; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                                            <div class="text-center">
+                                                <div class="h1 fw-bold mb-0" t-attf-style="color: {{'#059669' if user_input.scoring_success else '#dc2626'}}; font-size: 3.5rem;">
+                                                    <t t-esc="int(user_input.scoring_percentage)"/>%
+                                                </div>
+                                                <div class="text-muted fw-medium mt-n1">Score</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-4 mb-5">
+                                            <div class="col-6">
+                                                <div class="p-3 bg-light rounded-4">
+                                                    <div class="h4 fw-bold mb-0" t-esc="int(user_input.scoring_total)"/>
+                                                    <div class="small text-muted">Marks Obtained</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="p-3 bg-light rounded-4">
+                                                    <div class="h4 fw-bold mb-0" t-esc="int(user_input.survey_id.scoring_max_obtainable)"/>
+                                                    <div class="small text-muted">Total Marks</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-grid gap-3">
+                                            <button type="button" class="btn btn-dark btn-lg rounded-pill py-3 fw-bold" id="preview-btn" onclick="togglePreview()">
+                                                <i class="fa fa-search me-2"></i> Review Questions
                                             </button>
-                                        </div>
-                                        
-                                        <!-- Questions Preview Section -->
-                                        <div id="preview-section" class="mt-4" style="display: none;">
-                                            <div class="card">
-                                                <div class="card-header bg-primary text-white">
-                                                    <h4 class="mb-0">Question Review</h4>
-                                                </div>
-                                                <div class="card-body">
-                                                    <t t-foreach="user_input.user_input_line_ids" t-as="line">
-                                                        <div class="mb-4 pb-3 border-bottom">
-                                                            <p><strong>Question <t t-esc="line_index + 1"/>:</strong> <t t-esc="line.question_id.question"/></p>
-                                                            <p><strong>Your Answer:</strong> 
-                                                                <t t-if="line.answer_type == 'free_text'"><t t-esc="line.value_free_text"/></t>
-                                                                <t t-elif="line.answer_type == 'simple_choice'"><t t-esc="line.value_suggested.value"/></t>
-                                                                <t t-elif="line.answer_type == 'multiple_choice'"><t t-esc="', '.join([v.value for v in line.value_suggested_ids])"/></t>
-                                                                <t t-elif="line.answer_type == 'numerical_box'"><t t-esc="line.value_numerical"/></t>
-                                                            </p>
-                                                            <p>
-                                                                <span t-attf-class="badge #{'badge-success' if line.answer_is_correct else 'badge-danger'}">
-                                                                    <t t-if="line.answer_is_correct">Correct</t>
-                                                                    <t t-else="">Incorrect</t>
-                                                                </span>
-                                                            </p>
-                                                            <t t-if="not line.answer_is_correct">
-                                                                <p><strong>Correct Answer:</strong> 
-                                                                    <t t-if="line.question_id.question_type == 'simple_choice'">
-                                                                        <t t-foreach="line.question_id.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/></t></t>
-                                                                    </t>
-                                                                    <t t-elif="line.question_id.question_type == 'multiple_choice'">
-                                                                        <t t-foreach="line.question_id.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/><t t-if="not ans_last">, </t></t></t>
-                                                                    </t>
-                                                                    <t t-elif="line.question_id.question_type == 'free_text'">
-                                                                        <t t-esc="line.question_id.answer_comment"/>
-                                                                    </t>
-                                                                </p>
-                                                                <p><small class="text-muted">Score: <t t-esc="line.answer_score"/> / <t t-esc="line.question_id.passing_score"/></small></p>
-                                                            </t>
-                                                        </div>
-                                                    </t>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="mt-4">
+                                            
                                             <t t-if="is_admin">
-                                                <a href="/test/admin" class="btn btn-primary">Back to Test Management</a>
+                                                <a href="/test/admin" class="btn btn-outline-secondary btn-lg rounded-pill py-3 fw-bold">
+                                                    Back to Management
+                                                </a>
                                             </t>
                                             <t t-else="">
-                                                <a href="/test/my" class="btn btn-primary">Back to My Tests</a>
+                                                <a href="/test/my" class="btn btn-outline-secondary btn-lg rounded-pill py-3 fw-bold">
+                                                    Take Another Test
+                                                </a>
                                             </t>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Review Section -->
+                                <div id="preview-section" class="mt-5" style="display: none;">
+                                    <h3 class="fw-bold mb-4 px-3">Question Review</h3>
+                                    <t t-foreach="user_input.user_input_line_ids" t-as="line">
+                                        <div class="card border-0 shadow-sm mb-3 rounded-4" t-attf-style="border-left: 6px solid {{'#10b981' if line.answer_is_correct else '#ef4444'}} !important;">
+                                            <div class="card-body p-4">
+                                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                                    <span class="badge rounded-pill px-3 py-2" t-attf-class="{{'bg-success' if line.answer_is_correct else 'bg-danger'}}" t-esc="'Correct' if line.answer_is_correct else 'Incorrect'"/>
+                                                    <span class="text-muted small">Score: <t t-esc="line.answer_score"/></span>
+                                                </div>
+                                                <h5 class="fw-bold mb-3"><t t-esc="line.question_id.question"/></h5>
+                                                
+                                                <div class="p-3 rounded-3 mb-2" t-attf-class="{{'bg-success-subtle text-success' if line.answer_is_correct else 'bg-danger-subtle text-danger'}}" style="background-color: #f8fafc;">
+                                                    <div class="small fw-bold text-uppercase opacity-50 mb-1">Your Answer</div>
+                                                    <t t-if="line.answer_type == 'text_box'"><t t-esc="line.value_text_box"/></t>
+                                                    <t t-elif="line.answer_type == 'simple_choice'"><t t-esc="line.value_suggested.value"/></t>
+                                                    <t t-elif="line.answer_type == 'multiple_choice'"><t t-esc="', '.join([v.value for v in line.value_suggested_ids])"/></t>
+                                                    <t t-elif="line.answer_type == 'numerical_box'"><t t-esc="line.value_numerical"/></t>
+                                                </div>
+
+                                                <t t-if="not line.answer_is_correct">
+                                                    <div class="p-3 bg-light rounded-3 mt-3">
+                                                        <div class="small fw-bold text-uppercase opacity-50 mb-1">Correct Answer</div>
+                                                        <t t-if="line.question_id.question_type == 'simple_choice'">
+                                                            <t t-foreach="line.question_id.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/></t></t>
+                                                        </t>
+                                                        <t t-elif="line.question_id.question_type == 'multiple_choice'">
+                                                            <t t-foreach="line.question_id.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/><t t-if="not ans_last">, </t></t></t>
+                                                        </t>
+                                                        <t t-elif="line.question_id.question_type == 'text_box'">
+                                                            <t t-esc="line.question_id.answer_comment or 'No comment available.'"/>
+                                                        </t>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </t>
                                 </div>
                             </div>
                         </div>
@@ -565,10 +621,11 @@
                         var btn = document.getElementById('preview-btn');
                         if (preview.style.display === 'none') {
                             preview.style.display = 'block';
-                            btn.textContent = 'Hide Questions';
+                            btn.innerHTML = '<i class="fa fa-times me-2"></i> Hide Review';
+                            preview.scrollIntoView({ behavior: 'smooth' });
                         } else {
                             preview.style.display = 'none';
-                            btn.textContent = 'Preview Questions';
+                            btn.innerHTML = '<i class="fa fa-search me-2"></i> Review Questions';
                         }
                     }
                 </script>

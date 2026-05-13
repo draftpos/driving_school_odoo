@@ -1,18 +1,23 @@
 // Test Portal JavaScript - Handles instant navigation for all buttons
+
 (function() {
     'use strict';
+
+    // Helper to find button in form or navigator
+    function findButton(className) {
+        return document.querySelector('.' + className) || document.querySelector('.test-question-body form .' + className);
+    }
 
     // Save answer via AJAX and navigate to next question
     function saveAnswerAndNavigate(form, targetUrl, buttonText) {
         // Get the button that was clicked
-        var nextBtn = form.querySelector('.test-next-btn');
-        var prevBtn = form.querySelector('.test-prev-btn');
-        var finalBtn = form.querySelector('.test-final-btn');
+        var nextBtn = document.querySelector('.test-next-btn');
+        var prevBtn = document.querySelector('.test-prev-btn');
+        var finalBtn = document.querySelector('.test-final-btn');
         var activeBtn = nextBtn || prevBtn || finalBtn;
         
         if (activeBtn) {
             activeBtn.disabled = true;
-            activeBtn.textContent = buttonText || 'Saving...';
             activeBtn.classList.add('saving');
         }
 
@@ -59,14 +64,13 @@
         if (!form) return;
         
         // Get the button that was clicked
-        var nextBtn = form.querySelector('.test-next-btn');
-        var prevBtn = form.querySelector('.test-prev-btn');
-        var finalBtn = form.querySelector('.test-final-btn');
+        var nextBtn = document.querySelector('.test-next-btn');
+        var prevBtn = document.querySelector('.test-prev-btn');
+        var finalBtn = document.querySelector('.test-final-btn');
         var activeBtn = nextBtn || prevBtn || finalBtn;
         
         if (activeBtn) {
             activeBtn.disabled = true;
-            activeBtn.textContent = 'Saving...';
         }
 
         // Collect form data
@@ -140,7 +144,7 @@
         var form = document.querySelector('.test-question-body form');
         if (!form) return;
 
-        var nextBtn = form.querySelector('.test-next-btn');
+        var nextBtn = document.querySelector('.test-next-btn');
         if (!nextBtn) return;
 
         var redirectQInput = form.querySelector('input[name="redirect_q"]');
@@ -164,7 +168,7 @@
         var form = document.querySelector('.test-question-body form');
         if (!form) return;
 
-        var prevBtn = form.querySelector('.test-prev-btn');
+        var prevBtn = document.querySelector('.test-prev-btn');
         if (!prevBtn) return;
 
         var questionIdInput = form.querySelector('input[name="question_id"]');
@@ -195,7 +199,7 @@
         var form = document.querySelector('.test-question-body form');
         if (!form) return;
 
-        var finalBtn = form.querySelector('.test-final-btn');
+        var finalBtn = document.querySelector('.test-final-btn');
         if (!finalBtn) return;
 
         var actionMatch = form.action.match(/\/test\/take\/(\d+)\/finish/);

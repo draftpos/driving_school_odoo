@@ -26,10 +26,10 @@ class TestUserInput(models.Model):
     student_username = fields.Char('Student Username')
     student_id_number = fields.Char('Student ID Number')
     student_class = fields.Selection([
-        ('class1', 'Class 1'),
-        ('class2', 'Class 2'),
-        ('class4', 'Class 4'),
-        ('class2and4', 'Class 2 & 4'),
+        ('class1', 'Class 1 (Buses)'),
+        ('class2', 'Class 2 (Heavy Vehicles)'),
+        ('class4', 'Class 4 (Light Vehicles)'),
+        ('class2and4', 'Class 2 & 4 (Heavy & Light)'),
     ], string='Student Class')
 
     # State
@@ -136,7 +136,7 @@ class TestUserInputLine(models.Model):
 
     # Answer type
     answer_type = fields.Selection([
-        ('free_text', 'Free Text'),
+        ('text_box', 'Text Box'),
         ('simple_choice', 'One choice'),
         ('multiple_choice', 'Multiple choices'),
         ('numerical_box', 'Numerical'),
@@ -145,7 +145,7 @@ class TestUserInputLine(models.Model):
     ], string='Answer Type')
 
     # Value stores
-    value_free_text = fields.Text('Free Text')
+    value_text_box = fields.Text('Text Box')
     value_suggested = fields.Many2one('test.question.answer', string='Suggested Answer')
     value_suggested_ids = fields.Many2many('test.question.answer', string='Multiple Suggested Answers')
     value_numerical = fields.Float('Numerical')
