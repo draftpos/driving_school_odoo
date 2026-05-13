@@ -73,7 +73,6 @@ class TestUserInput(models.Model):
         'user_input_line_ids.answer_is_correct',
         'survey_id.scoring_type',
         'survey_id.scoring_max_obtainable',
-        'survey_id.scoring_success_min',
     )
     def _compute_scores(self):
         for user_input in self:

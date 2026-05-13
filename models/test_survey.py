@@ -78,7 +78,6 @@ class TestSurvey(models.Model):
         ('scoring_with_answers', 'Scoring with answers at the end'),
         ('scoring_without_answers', 'Scoring without answers')],
         string='Scoring', required=True, default='no_scoring')
-    scoring_success_min = fields.Float('Required Score (%)', default=80.0)
     scoring_max_obtainable = fields.Float('Maximum obtainable score', compute='_compute_scoring_max_obtainable')
 
 
@@ -86,6 +85,7 @@ class TestSurvey(models.Model):
     # Attempts
     is_attempts_limited = fields.Boolean('Limited number of attempts', help="Check this option if you want to limit the number of attempts per user")
     attempts_limit = fields.Integer('Number of attempts', default=1)
+    time_limit = fields.Integer('Time Limit (mins)', default=0, help="If set, this will override the global default time limit.")
 
 # Statistics
     answer_count = fields.Integer("Total Responses", compute='_compute_statistics')
@@ -146,11 +146,16 @@ class TestSurvey(models.Model):
             survey.answer_score_avg = answer_score_avg
             survey.success_ratio = success_ratio
 
-    @api.constrains('scoring_success_min')
-    def _check_scoring_success_min(self):
-        for survey in self:
-            if survey.scoring_success_min and (survey.scoring_success_min < 0 or survey.scoring_success_min > 100):
-                raise ValidationError(_("Success percentage must be between 0 and 100"))
+    def get_average_score(self):
+        """Helper for dashboard statistics"""
+        completions = self.env['test.user_input'].sudo().search([
+            ('survey_id', '=', self.id), ('state', '=', 'done')
+        ])
+        if not completions:
+            return 0.0
+        return sum(c.scoring_percentage or 0 for c in completions) / len(completions)
+
+
 
     def action_start_test(self):
         """Start the test"""

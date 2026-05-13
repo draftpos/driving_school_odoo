@@ -3,7 +3,7 @@
 import json
 import random
 from datetime import datetime, timedelta
-from odoo import http
+from odoo import http, _, fields
 from odoo.http import request
 
 
@@ -12,8 +12,15 @@ class TestStudentPortal(http.Controller):
 
     @http.route(['/test/debug/settings'], type='http', auth='user', website=True)
     def test_debug_settings(self, **kw):
+        settings_all = request.env['test.settings'].sudo().search([])
         settings = request.env['test.settings'].sudo().get_default_settings()
-        return f"Default Time Limit: {settings.default_time_limit} mins<br/>Class 4 Pass: {settings.class4_passing_score}%"
+        param = request.env['ir.config_parameter'].sudo().get_param('test.default_time_limit', 'NONE')
+        return f"""
+            <b>Settings Count:</b> {len(settings_all)}<br/>
+            <b>Current Default:</b> {settings.default_time_limit} mins (ID: {settings.id})<br/>
+            <b>System Param:</b> {param}<br/>
+            <b>Class 4 Pass:</b> {settings.class4_passing_score}%
+        """
 
     @http.route(['/web'], type='http', auth='public', website=True)
     def web_redirect(self, **kw):
@@ -73,12 +80,16 @@ class TestStudentPortal(http.Controller):
         surveys_html = ''
         if surveys:
             for survey in surveys:
+                limit_text = f"{survey.time_limit} mins" if survey.time_limit else "No limit"
+                avg_score = survey.get_average_score()
                 surveys_html += f'''
                 <div class="test-card">
                     <div class="test-card-header"><h3>{survey.title}</h3></div>
                     <div class="test-card-body">
-                        <p><strong>Questions:</strong> {survey.question_count or 0}</p>
-                        <a href="/test/start/{survey.id}" class="btn btn-start">Start Test</a>
+                        <p>Questions: {survey.question_count}</p>
+                        <p>Time Limit: <strong>{limit_text}</strong></p>
+                        <p>Avg. Score: {avg_score:.1f}%</p>
+                        <div style="margin-top: 15px;"><a href="/test/start/{survey.id}" class="btn btn-start">Start Test</a></div>
                     </div>
                 </div>'''
         else:
@@ -444,17 +455,20 @@ class TestStudentPortal(http.Controller):
                 ])
                 completion_count = len(completions)
                 avg_score = sum([c.scoring_percentage or 0 for c in completions]) / completion_count if completion_count > 0 else 0
+                
+                settings = request.env['test.settings'].sudo().get_default_settings()
+                limit_text = f"{survey.time_limit} mins" if survey.time_limit > 0 else f"{settings.default_time_limit} mins (Global)"
                 surveys_html += f'''
                 <div class="test-card">
                     <div class="test-card-header">
                         <h3>{survey.title}</h3>
-                        <span class="badge badge-primary">{completion_count} Completed</span>
+                        <span class="badge badge-primary">{completion_count} Participants</span>
                     </div>
                     <div class="test-card-body">
-                        <p>{"No description available." if not survey.description else survey.description}</p>
-                        <p><strong>Questions:</strong> {survey.question_count or 0}</p>
-                        <p><strong>Avg Score:</strong> {avg_score:.1f}%</p>
-                        <a href="/test/start/{survey.id}" class="btn">Take Test</a>
+                        <p style="margin-bottom: 10px; font-size: 0.9em; color: #64748b;">Questions: {survey.question_count}</p>
+                        <p style="margin-bottom: 10px; font-size: 0.9em; color: #64748b;">Time Limit: <strong>{limit_text}</strong></p>
+                        <p style="margin-bottom: 20px; font-size: 0.9em; color: #64748b;">Avg. Score: {avg_score:.1f}%</p>
+                        <a href="/test/take/{survey.id}" class="btn" style="display: block; text-align: center; width: 100%;">Take Test Preview</a>
                     </div>
                 </div>'''
         else:
@@ -602,7 +616,7 @@ class TestStudentPortal(http.Controller):
             'partner_id': partner_id,
             'email': request.env.user.email or '',
             'access_token': survey.access_token,
-            'start_datetime': datetime.now(),
+            'start_datetime': fields.Datetime.now(),
         }
         if registration:
             vals.update({
@@ -692,20 +706,29 @@ class TestStudentPortal(http.Controller):
         elif student_class == 'class2and4':
             passing_score = settings.class2and4_passing_score
 
+        # Robust timer calculation using Odoo UTC-aware datetime
+        now = fields.Datetime.now()
+        start = user_input.start_datetime
+        # Support per-survey time limits (fallback to global settings)
+        limit_mins = survey.time_limit if survey.time_limit > 0 else (settings.default_time_limit or 15)
+        
+        elapsed_seconds = (now - start).total_seconds() if start else 0
+        seconds_left = int((limit_mins * 60) - elapsed_seconds)
+        
         values = {
             'survey': survey,
             'questions': questions,
             'question': current_question,
             'question_number': q_num,
             'total_questions': len(questions),
-            'total_display': len(questions),          # needed by template progress bar
+            'total_display': len(questions),
             'answers': answers,
             'user_input': user_input,
             'user_line': user_line,
             'answered_question_ids': answered_question_ids,
             'page_name': 'test_take_question',
             'passing_score': passing_score,
-            'seconds_left': int((user_input.start_datetime + timedelta(minutes=settings.default_time_limit) - datetime.now()).total_seconds()) if settings.default_time_limit and user_input.start_datetime else 0,
+            'seconds_left': max(0, seconds_left),
         }
         return request.render('test.test_take_question_page', values)
 
