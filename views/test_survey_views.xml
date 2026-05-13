@@ -82,6 +82,17 @@
                                     </form>
                                 </field>
                             </page>
+                            <page string="Answers" name="all_answers">
+                                <field name="suggested_answer_ids" nolabel="1">
+                                    <list editable="bottom">
+                                        <field name="question_id"/>
+                                        <field name="value"/>
+                                        <field name="answer_image" widget="image" class="oe_avatar" options="{'size': [64, 64]}"/>
+                                        <field name="is_correct"/>
+                                        <field name="answer_score"/>
+                                    </list>
+                                </field>
+                            </page>
                             <page string="Description" name="description">
                                 <field name="description" placeholder="e.g. The following Test will help us..." options="{'embedded_components': false}" nolabel="1"></field>
                             </page>
@@ -240,7 +251,7 @@
         <menuitem id="menu_test_portal" name="Take Test" parent="menu_test_root" action="action_test_survey" sequence="5"/>
 
         <!-- Test Surveys (Main Menu Item) -->
-        <menuitem id="menu_test_surveys" name="Surveys" parent="menu_test_root" action="action_test_survey" sequence="10"/>
+
 
         <!-- Questions Menu -->
         <menuitem id="menu_test_questions" name="Questions" parent="menu_test_root" action="action_test_question" sequence="20"/>

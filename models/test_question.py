@@ -59,6 +59,7 @@ class TestQuestionAnswer(models.Model):
     _order = 'question_id, sequence, id'
 
     question_id = fields.Many2one('test.question', string='Question', required=True, ondelete='cascade')
+    survey_id = fields.Many2one('test.survey', related='question_id.survey_id', store=True, readonly=True)
     value = fields.Text(string='Answer Value', required=True, translate=True)
     value_eng = fields.Text(string='English Version', translate=True)
     

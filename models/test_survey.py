@@ -104,6 +104,7 @@ class TestSurvey(models.Model):
 
     # User inputs
     user_input_ids = fields.One2many('test.user_input', 'survey_id', string='Responses', readonly=True)
+    suggested_answer_ids = fields.One2many('test.question.answer', 'survey_id', string='All Answers')
 
     _access_token_unique = models.Constraint(
         'unique(access_token)',
