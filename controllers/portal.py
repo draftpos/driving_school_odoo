@@ -584,10 +584,28 @@ class TestStudentPortal(http.Controller):
             elif answer_type == 'simple_choice':
                 val = kw.get('value_suggested', 0)
                 if val:
-                    user_line.write({'value_suggested': int(val)})
+                    answer_id = int(val)
+                    user_line.write({'value_suggested': answer_id})
+                    # Evaluate correctness
+                    answer_rec = request.env['test.question.answer'].sudo().browse(answer_id)
+                    is_correct = bool(answer_rec.is_correct)
+                    score = answer_rec.answer_score if is_correct else 0.0
+                    user_line.write({'answer_is_correct': is_correct, 'answer_score': score})
+                else:
+                    user_line.write({'answer_is_correct': False, 'answer_score': 0.0})
             elif answer_type == 'multiple_choice':
                 selected_ids = [int(x) for x in request.httprequest.form.getlist('value_suggested_ids')]
                 user_line.write({'value_suggested_ids': [(6, 0, selected_ids)]})
+                # Evaluate correctness: all correct answers selected and no wrong ones
+                question_rec = request.env['test.question'].sudo().browse(question_id)
+                correct_ids = set(question_rec.suggested_answer_ids.filtered(lambda a: a.is_correct).ids)
+                selected_set = set(selected_ids)
+                is_correct = (correct_ids == selected_set) and bool(correct_ids)
+                score = sum(
+                    a.answer_score for a in question_rec.suggested_answer_ids
+                    if a.id in selected_ids and a.is_correct
+                ) if is_correct else 0.0
+                user_line.write({'answer_is_correct': is_correct, 'answer_score': score})
             elif answer_type == 'numerical_box':
                 val = kw.get('value_numerical', 0)
                 user_line.write({'value_numerical': float(val) if val else 0})
