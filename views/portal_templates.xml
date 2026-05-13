@@ -270,7 +270,7 @@
                                 <span class="test-header-progress" style="color: white; font-weight: 600; font-size: 14px;">Progress: <t t-esc="int(float(question_number)/float(total_questions)*100)"/>%</span>
                             </div>
                             <div class="test-take-header-right">
-                                <a t-attf-href="/test/take/{{survey.id}}/finish" class="test-finish-btn">Finalise</a>
+                                <a t-attf-href="/test/take/{{survey.id}}/finish" class="test-finish-btn test-final-btn">Finalise</a>
                             </div>
                         </div>
                         
@@ -321,61 +321,39 @@
                                     </div>
                                 </t>
                                 
-                                <!-- Navigation Buttons (Prev/Next at bottom) -->
-                                <div class="test-nav-buttons">
-                                    <t t-set="is_first" t-value="question_number == 1"/>
-                                    <t t-set="is_last" t-value="question_number == total_questions"/>
-                                    <t t-if="not is_first">
-                                        <a t-attf-href="/test/take/{{survey.id}}/question/{{question_number - 1}}" class="test-prev-btn">Previous</a>
-                                    </t>
-                                    <t t-else="">
-                                        <span></span>
-                                    </t>
-                                    
-                                    <t t-if="not is_last">
-                                        <button type="submit" class="test-next-btn">Next</button>
-                                    </t>
-                                    <t t-else="">
-                                        <button type="submit" class="test-final-btn">Finalise</button>
-                                    </t>
+                                <!-- Question Navigator (1-25 buttons) - INSIDE form -->
+                                <div class="test-navigator">
+                                    <p class="test-navigator-title">Questions: Click to navigate</p>
+                                    <div class="test-navigator-buttons">
+                                        <t t-set="is_first" t-value="question_number == 1"/>
+                                        <t t-set="is_last" t-value="question_number == total_questions"/>
+                                        
+                                        <!-- Prev Button -->
+                                        <t t-if="not is_first">
+                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{question_number - 1}}" class="test-navigator-btn unanswered test-prev-btn" style="min-width: 60px;">Prev</a>
+                                        </t>
+
+                                        <t t-foreach="questions" t-as="q">
+                                            <t t-if="q.id in answered_question_ids">
+                                                <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn answered"><t t-esc="q_index + 1"/></a>
+                                            </t>
+                                            <t t-else="">
+                                                <t t-if="q_index + 1 == question_number">
+                                                    <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn current"><t t-esc="q_index + 1"/></a>
+                                                </t>
+                                                <t t-else="">
+                                                    <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn unanswered"><t t-esc="q_index + 1"/></a>
+                                                </t>
+                                            </t>
+                                        </t>
+
+                                        <!-- Next Button after numbers -->
+                                        <t t-if="not is_last">
+                                            <button type="button" class="test-navigator-btn current test-next-btn" style="min-width: 60px;">Next</button>
+                                        </t>
+                                    </div>
                                 </div>
                             </form>
-                        </div>
-
-                        <!-- Question Navigator (1-25 buttons) - Moved to bottom as requested -->
-                        <div class="test-navigator">
-                            <p class="test-navigator-title">Questions: Click to navigate</p>
-                            <div class="test-navigator-buttons">
-                                <t t-set="is_first" t-value="question_number == 1"/>
-                                <t t-set="is_last" t-value="question_number == total_questions"/>
-                                
-                                <!-- Prev Button before 1 -->
-                                <t t-if="not is_first">
-                                    <a t-attf-href="/test/take/{{survey.id}}/question/{{question_number - 1}}" class="test-navigator-btn unanswered test-prev-btn" style="min-width: 60px;">Prev</a>
-                                </t>
-
-                                <t t-foreach="questions" t-as="q">
-                                    <t t-if="q.id in answered_question_ids">
-                                        <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn answered"><t t-esc="q_index + 1"/></a>
-                                    </t>
-                                    <t t-else="">
-                                        <t t-if="q_index + 1 == question_number">
-                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn current"><t t-esc="q_index + 1"/></a>
-                                        </t>
-                                        <t t-else="">
-                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{q_index + 1}}" class="test-navigator-btn unanswered"><t t-esc="q_index + 1"/></a>
-                                        </t>
-                                    </t>
-                                </t>
-
-                                <!-- Next/Finalise Button after 25 -->
-                                <t t-if="not is_last">
-                                    <button type="submit" form="test_question_form" class="test-navigator-btn current test-next-btn" style="min-width: 60px;">Next</button>
-                                </t>
-                                <t t-else="">
-                                    <button type="submit" form="test_question_form" class="test-navigator-btn answered test-final-btn" style="min-width: 80px; background: #28a745;">Finalise</button>
-                                </t>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -534,21 +512,21 @@
                                                 <div class="h1 fw-bold mb-0" t-attf-style="color: {{'#059669' if user_input.scoring_success else '#dc2626'}}; font-size: 3.5rem;">
                                                     <t t-esc="int(user_input.scoring_percentage)"/>%
                                                 </div>
-                                                <div class="text-muted fw-medium mt-n1">Score</div>
+                                                <div class="text-muted fw-medium mt-n1">Score Percentage</div>
                                             </div>
                                         </div>
 
                                         <div class="row g-4 mb-5">
                                             <div class="col-6">
                                                 <div class="p-3 bg-light rounded-4">
-                                                    <div class="h4 fw-bold mb-0" t-esc="int(user_input.scoring_total)"/>
-                                                    <div class="small text-muted">Marks Obtained</div>
+                                                    <div class="h4 fw-bold mb-0"><t t-esc="int(user_input.scoring_total)"/> / <t t-esc="int(user_input.survey_id.scoring_max_obtainable)"/></div>
+                                                    <div class="small text-muted">Total Marks</div>
                                                 </div>
                                             </div>
                                             <div class="col-6">
                                                 <div class="p-3 bg-light rounded-4">
-                                                    <div class="h4 fw-bold mb-0" t-esc="int(user_input.survey_id.scoring_max_obtainable)"/>
-                                                    <div class="small text-muted">Total Marks</div>
+                                                    <div class="h4 fw-bold mb-0" t-esc="user_input.scoring_answers"/>
+                                                    <div class="small text-muted">Correct Answers</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -565,7 +543,7 @@
                                             </t>
                                             <t t-else="">
                                                 <a href="/test/my" class="btn btn-outline-secondary btn-lg rounded-pill py-3 fw-bold">
-                                                    Take Another Test
+                                                    <i class="fa fa-arrow-left me-2"></i> Back to Dashboard
                                                 </a>
                                             </t>
                                         </div>
@@ -575,34 +553,54 @@
                                 <!-- Review Section -->
                                 <div id="preview-section" class="mt-5" style="display: none;">
                                     <h3 class="fw-bold mb-4 px-3">Question Review</h3>
-                                    <t t-foreach="user_input.user_input_line_ids" t-as="line">
-                                        <div class="card border-0 shadow-sm mb-3 rounded-4" t-attf-style="border-left: 6px solid {{'#10b981' if line.answer_is_correct else '#ef4444'}} !important;">
+                                    <t t-foreach="user_input.survey_id.question_ids" t-as="question">
+                                        <t t-set="line" t-value="user_input.user_input_line_ids.filtered(lambda l: l.question_id.id == question.id)"/>
+                                        <t t-set="line" t-value="line[0] if line else False"/>
+                                        <div class="card border-0 shadow-sm mb-3 rounded-4" t-attf-style="border-left: 6px solid {{'#10b981' if line and line.answer_is_correct else '#ef4444' if line else '#94a3b8'}} !important;">
                                             <div class="card-body p-4">
                                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                                    <span class="badge rounded-pill px-3 py-2" t-attf-class="{{'bg-success' if line.answer_is_correct else 'bg-danger'}}" t-esc="'Correct' if line.answer_is_correct else 'Incorrect'"/>
-                                                    <span class="text-muted small">Score: <t t-esc="line.answer_score"/></span>
+                                                    <t t-if="line">
+                                                        <span class="badge rounded-pill px-3 py-2" t-attf-class="{{'bg-success' if line.answer_is_correct else 'bg-danger'}}" t-esc="'Correct' if line.answer_is_correct else 'Incorrect'"/>
+                                                        <span class="text-muted small">Score: <t t-esc="line.answer_score"/></span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span class="badge rounded-pill px-3 py-2 bg-secondary">Unanswered</span>
+                                                        <span class="text-muted small">Score: 0</span>
+                                                    </t>
                                                 </div>
-                                                <h5 class="fw-bold mb-3"><t t-esc="line.question_id.question"/></h5>
+                                                <h5 class="fw-bold mb-3"><t t-esc="question.question"/></h5>
                                                 
-                                                <div class="p-3 rounded-3 mb-2" t-attf-class="{{'bg-success-subtle text-success' if line.answer_is_correct else 'bg-danger-subtle text-danger'}}" style="background-color: #f8fafc;">
-                                                    <div class="small fw-bold text-uppercase opacity-50 mb-1">Your Answer</div>
-                                                    <t t-if="line.answer_type == 'text_box'"><t t-esc="line.value_text_box"/></t>
-                                                    <t t-elif="line.answer_type == 'simple_choice'"><t t-esc="line.value_suggested.value"/></t>
-                                                    <t t-elif="line.answer_type == 'multiple_choice'"><t t-esc="', '.join([v.value for v in line.value_suggested_ids])"/></t>
-                                                    <t t-elif="line.answer_type == 'numerical_box'"><t t-esc="line.value_numerical"/></t>
+                                                <div class="test-answer-group mt-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                                    <t t-if="question.question_type == 'text_box'"><div class="test-option answered" style="grid-column: span 3; background: #f8fafc;"><t t-esc="line.value_text_box if line else 'No answer provided'"/></div></t>
+                                                    <t t-elif="question.question_type == 'simple_choice'">
+                                                        <t t-foreach="question.suggested_answer_ids" t-as="ans">
+                                                            <div t-attf-class="test-option {{'answered' if line and line.value_suggested.id == ans.id else ''}}" style="border-radius: 8px; padding: 10px;">
+                                                                <input type="radio" disabled="disabled" t-att-checked="line and line.value_suggested.id == ans.id"/>
+                                                                <t t-esc="ans.value"/>
+                                                            </div>
+                                                        </t>
+                                                    </t>
+                                                    <t t-elif="question.question_type == 'multiple_choice'">
+                                                        <t t-foreach="question.suggested_answer_ids" t-as="ans">
+                                                            <div t-attf-class="test-option {{'answered' if line and ans.id in line.value_suggested_ids.ids else ''}}" style="border-radius: 8px; padding: 10px;">
+                                                                <input type="checkbox" disabled="disabled" t-att-checked="line and ans.id in line.value_suggested_ids.ids"/>
+                                                                <t t-esc="ans.value"/>
+                                                            </div>
+                                                        </t>
+                                                    </t>
                                                 </div>
 
-                                                <t t-if="not line.answer_is_correct">
+                                                <t t-if="not line or not line.answer_is_correct">
                                                     <div class="p-3 bg-light rounded-3 mt-3">
                                                         <div class="small fw-bold text-uppercase opacity-50 mb-1">Correct Answer</div>
-                                                        <t t-if="line.question_id.question_type == 'simple_choice'">
-                                                            <t t-foreach="line.question_id.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/></t></t>
+                                                        <t t-if="question.question_type == 'simple_choice'">
+                                                            <t t-foreach="question.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/></t></t>
                                                         </t>
-                                                        <t t-elif="line.question_id.question_type == 'multiple_choice'">
-                                                            <t t-foreach="line.question_id.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/><t t-if="not ans_last">, </t></t></t>
+                                                        <t t-elif="question.question_type == 'multiple_choice'">
+                                                            <t t-foreach="question.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/><t t-if="not ans_last">, </t></t></t>
                                                         </t>
-                                                        <t t-elif="line.question_id.question_type == 'text_box'">
-                                                            <t t-esc="line.question_id.answer_comment or 'No comment available.'"/>
+                                                        <t t-elif="question.question_type == 'text_box'">
+                                                            <t t-esc="question.answer_comment or 'No comment available.'"/>
                                                         </t>
                                                     </div>
                                                 </t>

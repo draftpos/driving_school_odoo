@@ -1,241 +1,81 @@
-// Test Portal JavaScript - Handles instant navigation for all buttons
-
+// Test Portal JavaScript - Handles AJAX save + navigation
 (function() {
     'use strict';
 
-    // Helper to find button in form or navigator
-    function findButton(className) {
-        return document.querySelector('.' + className) || document.querySelector('.test-question-body form .' + className);
+    function getForm() {
+        return document.querySelector('#test_question_form');
     }
 
-    // Save answer via AJAX and navigate to next question
-    function saveAnswerAndNavigate(form, targetUrl, buttonText) {
-        // Get the button that was clicked
-        var nextBtn = document.querySelector('.test-next-btn');
-        var prevBtn = document.querySelector('.test-prev-btn');
-        var finalBtn = document.querySelector('.test-final-btn');
-        var activeBtn = nextBtn || prevBtn || finalBtn;
-        
-        if (activeBtn) {
-            activeBtn.disabled = true;
-            activeBtn.classList.add('saving');
+    function getSurveyId() {
+        var form = getForm();
+        if (!form) return null;
+        var m = form.action.match(/\/test\/take\/(\d+)\/answer/);
+        return m ? m[1] : null;
+    }
+
+    // Submit form via AJAX and navigate to targetUrl on success
+    function saveAndGo(targetUrl) {
+        var form = getForm();
+        if (!form) {
+            window.location.href = targetUrl;
+            return;
         }
 
-        // Collect form data
         var formData = new FormData(form);
-        
-        // Get CSRF token
-        var csrfToken = form.querySelector('input[name="csrf_token"]').value;
-        
-        // Determine the action URL
-        var actionUrl = form.action;
-        
-        // Use fetch API to submit the form data asynchronously
-        fetch(actionUrl, {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin',
-            headers: {
-                'X-CSRF-Token': csrfToken,
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }
-        })
-        .then(function(response) {
-            // Only redirect after successful save
-            if (response.ok || response.status === 200 || response.redirected) {
-                window.location.href = targetUrl;
-            } else {
-                throw new Error('Save failed');
-            }
-        })
-        .catch(function(error) {
-            console.error('Error saving answer:', error);
-            if (activeBtn) {
-                activeBtn.disabled = false;
-                if (nextBtn) activeBtn.textContent = 'Next';
-                else if (prevBtn) activeBtn.textContent = 'Previous';
-                else if (finalBtn) activeBtn.textContent = 'Finalise';
-            }
-        });
-    }
-
-    // Handle button click with AJAX save
-    function handleButtonClick(form, targetUrl, buttonText) {
-        if (!form) return;
-        
-        // Get the button that was clicked
-        var nextBtn = document.querySelector('.test-next-btn');
-        var prevBtn = document.querySelector('.test-prev-btn');
-        var finalBtn = document.querySelector('.test-final-btn');
-        var activeBtn = nextBtn || prevBtn || finalBtn;
-        
-        if (activeBtn) {
-            activeBtn.disabled = true;
+        var csrfInput = form.querySelector('input[name="csrf_token"]');
+        if (!csrfInput) {
+            window.location.href = targetUrl;
+            return;
         }
 
-        // Collect form data
-        var formData = new FormData(form);
-        
-        // Get CSRF token
-        var csrfToken = form.querySelector('input[name="csrf_token"]').value;
-        
-        // Determine the action URL
-        var actionUrl = form.action;
-        
-        // Use fetch API to submit the form data asynchronously
-        fetch(actionUrl, {
+        fetch(form.action, {
             method: 'POST',
             body: formData,
             credentials: 'same-origin',
-            headers: {
-                'X-CSRF-Token': csrfToken,
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }
         })
-        .then(function(response) {
-            if (response.ok || response.status === 200 || response.redirected) {
-                window.location.href = targetUrl;
-            } else {
-                throw new Error('Save failed');
-            }
+        .then(function() {
+            window.location.href = targetUrl;
         })
-        .catch(function(error) {
-            console.error('Error saving answer:', error);
-            if (activeBtn) {
-                activeBtn.disabled = false;
-                if (nextBtn) activeBtn.textContent = 'Next';
-                else if (prevBtn) activeBtn.textContent = 'Previous';
-                else if (finalBtn) activeBtn.textContent = 'Finalise';
-            }
+        .catch(function() {
+            // Even on error, navigate so user is not stuck
+            window.location.href = targetUrl;
         });
     }
 
-    // Save answer in background (no navigation)
-    function saveAnswerBackground() {
-        var form = document.querySelector('.test-question-body form');
-        if (!form) return;
+    function initAll() {
+        var surveyId = getSurveyId();
+        if (!surveyId) return;
 
-        // Check if there's an answer to save
-        var questionId = form.querySelector('input[name="question_id"]');
-        if (!questionId) return;
-
-        // Get CSRF token
-        var csrfToken = form.querySelector('input[name="csrf_token"]');
-        if (!csrfToken) return;
-        
-        var actionUrl = form.action;
-        var formData = new FormData(form);
-        
-        fetch(actionUrl, {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin',
-            headers: {
-                'X-CSRF-Token': csrfToken.value,
-            }
-        })
-        .catch(function(error) {
-            console.log('Background save error (non-critical):', error);
-        });
-    }
-
-    // Initialize Next button
-    function initNextButton() {
-        var form = document.querySelector('.test-question-body form');
-        if (!form) return;
-
-        var nextBtn = document.querySelector('.test-next-btn');
-        if (!nextBtn) return;
-
-        var redirectQInput = form.querySelector('input[name="redirect_q"]');
-        if (!redirectQInput) return;
-
-        var nextQuestionNum = parseInt(redirectQInput.value, 10);
-        var actionMatch = form.action.match(/\/test\/take\/(\d+)\/answer/);
-        if (!actionMatch) return;
-        
-        var surveyId = actionMatch[1];
-        var nextQuestionUrl = '/test/take/' + surveyId + '/question/' + nextQuestionNum;
-
-        nextBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            saveAnswerAndNavigate(form, nextQuestionUrl, 'Next');
-        });
-    }
-
-    // Initialize Previous button
-    function initPrevButton() {
-        var form = document.querySelector('.test-question-body form');
-        if (!form) return;
-
-        var prevBtn = document.querySelector('.test-prev-btn');
-        if (!prevBtn) return;
-
-        var questionIdInput = form.querySelector('input[name="question_id"]');
-        if (!questionIdInput) return;
-
-        // Get current question number from URL
-        var urlMatch = window.location.href.match(/\/question\/(\d+)/);
-        if (!urlMatch) return;
-        
-        var currentNum = parseInt(urlMatch[1], 10);
-        if (currentNum <= 1) return;
-        
-        var prevQuestionNum = currentNum - 1;
-        var actionMatch = form.action.match(/\/test\/take\/(\d+)\/answer/);
-        if (!actionMatch) return;
-        
-        var surveyId = actionMatch[1];
-        var prevQuestionUrl = '/test/take/' + surveyId + '/question/' + prevQuestionNum;
-
-        prevBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            saveAnswerAndNavigate(form, prevQuestionUrl, 'Previous');
-        });
-    }
-
-    // Initialize Finalise button
-    function initFinalButton() {
-        var form = document.querySelector('.test-question-body form');
-        if (!form) return;
-
-        var finalBtn = document.querySelector('.test-final-btn');
-        if (!finalBtn) return;
-
-        var actionMatch = form.action.match(/\/test\/take\/(\d+)\/finish/);
-        if (!actionMatch) return;
-        
-        var surveyId = actionMatch[1];
-        var finishUrl = '/test/take/' + surveyId + '/finish';
-
-        finalBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            handleButtonClick(form, finishUrl);
-        });
-    }
-
-    // Initialize question navigator clicks
-    function initNavigatorClicks() {
-        var navButtons = document.querySelectorAll('.test-navigator-btn, .test-navigator a');
-        
-        navButtons.forEach(function(btn) {
+        // --- NEXT button ---
+        var nextBtns = document.querySelectorAll('.test-next-btn');
+        Array.prototype.forEach.call(nextBtns, function(btn) {
             btn.addEventListener('click', function(e) {
-                // Save current answer in background before navigating
-                saveAnswerBackground();
-                // Let normal navigation happen - it's fast enough for navigation links
+                e.preventDefault();
+                var form = getForm();
+                var redirectQInput = form ? form.querySelector('input[name="redirect_q"]') : null;
+                var nextQ = redirectQInput ? parseInt(redirectQInput.value, 10) : 1;
+                var url = '/test/take/' + surveyId + '/question/' + nextQ;
+                saveAndGo(url);
+            });
+        });
+
+        // --- PREV button is a plain <a> link - no JS needed ---
+
+        // --- Question number links: save in background before navigating ---
+        var numLinks = document.querySelectorAll('.test-navigator-btn:not(.test-next-btn):not(.test-prev-btn)');
+        Array.prototype.forEach.call(numLinks, function(link) {
+            if (link.tagName !== 'A') return;
+            link.addEventListener('click', function(e) {
+                // Don't block navigation - just fire-and-forget save
+                var form = getForm();
+                if (!form) return;
+                var fd = new FormData(form);
+                fetch(form.action, { method: 'POST', body: fd, credentials: 'same-origin' })
+                    .catch(function() {});
             });
         });
     }
 
-    // Initialize all buttons
-    function initAll() {
-        initNextButton();
-        initPrevButton();
-        initFinalButton();
-        initNavigatorClicks();
-    }
-
-    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAll);
     } else {
