@@ -612,40 +612,21 @@ class TestStudentPortal(http.Controller):
             })
         user_input = request.env['test.user_input'].sudo().create(vals)
         questions = self._get_questions_for_input(survey, user_input)
+        
+        # Calculate session-specific max possible score
+        max_possible = 0.0
+        for q in questions:
+            if q.passing_score:
+                max_possible += q.passing_score
+            elif q.suggested_answer_ids:
+                max_possible += sum(a.answer_score for a in q.suggested_answer_ids if a.answer_score > 0)
+        user_input.sudo().write({'max_scoring_possible': max_possible})
+
         answered_lines = request.env['test.user.input.line'].sudo().search([
             ('user_input_id', '=', user_input.id)])
         answered_question_ids = answered_lines.mapped('question_id').ids
 
-        # Fetch class-specific passing score and time limit
-        settings = request.env['test.settings'].sudo().get_default_settings()
-        student_class = user_input.student_class
-        passing_score = settings.class4_passing_score or 88
-        
-        if student_class == 'class1':
-            passing_score = settings.class1_passing_score
-        elif student_class == 'class2':
-            passing_score = settings.class2_passing_score
-        elif student_class == 'class4':
-            passing_score = settings.class4_passing_score
-        elif student_class == 'class2and4':
-            passing_score = settings.class2and4_passing_score
-
-        values = {
-            'survey': survey,
-            'questions': questions,
-            'user_input': user_input,
-            'student_name': user_input.student_fullname or request.env.user.name,
-            'answered_question_ids': answered_question_ids,
-            'total_display': len(questions),
-            'page_name': 'test_take',
-            'passing_score': passing_score,
-            'time_limit': settings.default_time_limit,
-            'seconds_left': int((user_input.start_datetime + timedelta(minutes=settings.default_time_limit) - datetime.now()).total_seconds()) if settings.default_time_limit and user_input.start_datetime else 0,
-        }
-        # DEBUG: Log the time limit
-        print(f"DEBUG: Time Limit from settings is {settings.default_time_limit} minutes")
-        
-        return request.render('test.test_take_page', values)
+        return request.redirect(f'/test/take/{survey.id}/question/1')
 
     @http.route(['/test/take/<model("test.survey"):survey>/question/<int:q_num>'],
                 type='http', auth='user', website=True)

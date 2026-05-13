@@ -45,6 +45,7 @@ class TestUserInput(models.Model):
     scoring_success = fields.Boolean('Success', compute='_compute_scores', readonly=True, store=True)
     scoring_percentage = fields.Float('Score (%)', compute='_compute_scores', readonly=True, store=True)
     scoring_answers = fields.Integer('# Correct Answers', compute='_compute_scores', readonly=True, store=True)
+    max_scoring_possible = fields.Float('Max Possible Score', help="Maximum score obtainable for the specific questions assigned to this attempt.")
 
     # Predefined answers
     user_input_line_ids = fields.One2many('test.user.input.line', 'user_input_id', string='Answers')
@@ -82,7 +83,8 @@ class TestUserInput(models.Model):
             user_input.scoring_total = total_score
 
             if user_input.survey_id.scoring_type != 'no_scoring':
-                max_score = user_input.survey_id.scoring_max_obtainable or 1
+                # Use the session-specific max score if set, otherwise fallback to survey total
+                max_score = user_input.max_scoring_possible or user_input.survey_id.scoring_max_obtainable or 1
                 user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
                 # Use class-specific passing score if available, otherwise fallback to survey default
                 settings = self.env['test.settings'].sudo().get_default_settings()
