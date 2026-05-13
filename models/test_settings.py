@@ -8,16 +8,11 @@ class TestSettings(models.Model):
     # General Settings
     default_time_limit = fields.Integer(
         string='Default Time Limit (minutes)',
-        default=60,
+        default=15,
         help='Default time limit for tests in minutes'
     )
     
-    passing_percentage = fields.Float(
-        string='Default Passing Percentage',
-        default=60.0,
-        help='Default passing percentage for tests'
-    )
-    
+
     allow_multiple_attempts = fields.Boolean(
         string='Allow Multiple Attempts',
         default=True,
@@ -51,10 +46,10 @@ class TestSettings(models.Model):
     
     # Question Selection Settings
     
-    class1_passing_score = fields.Integer(string='Class 1 Passing Score', default=70, help='Minimum percentage to pass for Class 1 students')
-    class2_passing_score = fields.Integer(string='Class 2 Passing Score', default=70, help='Minimum percentage to pass for Class 2 students')
-    class4_passing_score = fields.Integer(string='Class 4 Passing Score', default=70, help='Minimum percentage to pass for Class 4 students')
-    class2and4_passing_score = fields.Integer(string='Class 2 & 4 Passing Score', default=70, help='Minimum percentage to pass for Class 2 & 4 students')
+    class1_passing_score = fields.Integer(string='Class 1 Passing Score', default=100, help='Minimum percentage to pass for Class 1 students')
+    class2_passing_score = fields.Integer(string='Class 2 Passing Score', default=88, help='Minimum percentage to pass for Class 2 students')
+    class4_passing_score = fields.Integer(string='Class 4 Passing Score', default=88, help='Minimum percentage to pass for Class 4 students')
+    class2and4_passing_score = fields.Integer(string='Class 2 & 4 Passing Score', default=88, help='Minimum percentage to pass for Class 2 & 4 students')
 
     questions_limit = fields.Integer(
         string='Questions Limit',
@@ -87,10 +82,6 @@ class TestSettings(models.Model):
         """Get default time limit"""
         return self.get_default_settings().default_time_limit
     
-    @api.model
-    def get_passing_percentage(self):
-        """Get default passing percentage"""
-        return self.get_default_settings().passing_percentage
 
     @api.model
     def get_questions_limit(self):

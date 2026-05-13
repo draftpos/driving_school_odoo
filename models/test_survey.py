@@ -81,9 +81,7 @@ class TestSurvey(models.Model):
     scoring_success_min = fields.Float('Required Score (%)', default=80.0)
     scoring_max_obtainable = fields.Float('Maximum obtainable score', compute='_compute_scoring_max_obtainable')
 
-    # Time limit
-    is_time_limited = fields.Boolean('The survey is limited in time')
-    time_limit = fields.Float("Time limit (minutes)", default=10)
+
 
     # Attempts
     is_attempts_limited = fields.Boolean('Limited number of attempts', help="Check this option if you want to limit the number of attempts per user")

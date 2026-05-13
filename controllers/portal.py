@@ -2,6 +2,7 @@
 
 import json
 import random
+from datetime import datetime, timedelta
 from odoo import http
 from odoo.http import request
 
@@ -45,6 +46,16 @@ class TestStudentPortal(http.Controller):
         ], order='id desc', limit=1) if partner_id else None
 
         student_name = latest_registration.student_fullname if latest_registration else user.name
+        student_username = latest_registration.student_username if latest_registration else '-'
+        student_class = latest_registration.student_class if latest_registration else '-'
+        class_mapping = {
+            'class1': 'Class 1',
+            'class2': 'Class 2',
+            'class4': 'Class 4',
+            'class2and4': 'Class 2 & 4'
+        }
+        student_class_label = class_mapping.get(student_class, student_class)
+
         surveys = request.env['test.survey'].sudo().search([('active', '=', True)])
 
         user_inputs = request.env['test.user_input'].sudo().search([
@@ -130,6 +141,7 @@ class TestStudentPortal(http.Controller):
             <h1>Student Portal</h1>
             <div style="text-align: right;">
                 <p>Welcome, <strong>{student_name}</strong></p>
+                <p style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">ID: {student_username} | Class: {student_class_label}</p>
                 <a href="/test/register" style="color: white; font-size: 12px; text-decoration: underline;">Switch Profile</a>
             </div>
         </div>
@@ -174,25 +186,46 @@ class TestStudentPortal(http.Controller):
                 ], limit=1)
                 
                 if existing:
-                    # If username exists and belongs to this partner, just let them in
-                    if existing.partner_id.id == partner_id:
-                        # Update the record so it becomes the 'latest' one for this partner
-                        existing.sudo().write({}) 
+                    # Check if username belongs to current user
+                    if existing.partner_id.id == user.partner_id.id:
                         return request.redirect('/test/my')
                     error = 'Username already taken by another user.'
                 elif is_login:
                     error = 'Username not found. Please register first.'
                 else:
-                    request.env['test.user_input'].sudo().create({
-                        'partner_id': partner_id,
-                        'email': user.sudo().email or '',
-                        'student_fullname': fullname,
-                        'student_username': username,
-                        'student_class': kw.get('student_class', ''),
-                        'student_id_number': kw.get('id_number', ''),
-                        'survey_id': False,
-                    })
-                    success = True
+                    partner_id = user.partner_id.id if user.partner_id else None
+                    
+                    # Create or update student participant record
+                    student = request.env['test.student'].sudo().search([('username', '=', username)], limit=1)
+                    if not student:
+                        student = request.env['test.student'].sudo().create({
+                            'name': fullname,
+                            'username': username,
+                            'student_class': kw.get('student_class', ''),
+                            'partner_id': partner_id,
+                        })
+                    else:
+                        if student.partner_id and student.partner_id.id != partner_id:
+                            error = "This username is already taken by another account."
+                        else:
+                            student.sudo().write({
+                                'name': fullname,
+                                'student_class': kw.get('student_class', ''),
+                                'partner_id': partner_id,
+                            })
+                    
+                    if not error:
+                        request.env['test.user_input'].sudo().create({
+                            'student_id': student.id,
+                            'partner_id': partner_id,
+                            'email': user.sudo().email or '',
+                            'student_fullname': fullname,
+                            'student_username': username,
+                            'student_class': kw.get('student_class', ''),
+                            'student_id_number': kw.get('id_number', ''),
+                            'survey_id': False,
+                        })
+                        success = True
 
         if success:
             return request.redirect('/test/my')
@@ -257,7 +290,7 @@ class TestStudentPortal(http.Controller):
                 </div>
                 <div class="form-group">
                     <label for="student_class">Class</label>
-                    <select id="student_class" name="student_class" style="width:100%; padding:14px 16px; border:2px solid #e0e0e0; border-radius:8px; font-size:15px;">
+                    <select id="student_class" name="student_class" required="required" style="width:100%; padding:14px 16px; border:2px solid #e0e0e0; border-radius:8px; font-size:15px;">
                         <option value="">Select your class</option>
                         <option value="class1">Class 1</option>
                         <option value="class2">Class 2</option>
@@ -358,9 +391,11 @@ class TestStudentPortal(http.Controller):
             }
             if registration:
                 vals.update({
+                    'student_id': registration.student_id.id if registration.student_id else False,
                     'student_fullname': registration.student_fullname,
                     'student_username': registration.student_username,
                     'student_id_number': registration.student_id_number,
+                    'student_class': registration.student_class,
                 })
             existing_input = request.env['test.user_input'].sudo().create(vals)
         return request.redirect(f'/test/take/{survey.id}')
@@ -508,13 +543,19 @@ class TestStudentPortal(http.Controller):
                 'partner_id': partner_id,
                 'email': request.env.user.email or '',
                 'access_token': survey.access_token,
+                'start_datetime': datetime.now(),
             }
             if registration:
                 vals.update({
                     'student_fullname': registration.student_fullname,
                     'student_username': registration.student_username,
+                    'student_class': registration.student_class,
                 })
             user_input = request.env['test.user_input'].sudo().create(vals)
+        else:
+            # If retrieved an existing one but start_datetime is missing, set it now
+            if not user_input.start_datetime:
+                user_input.sudo().write({'start_datetime': datetime.now()})
 
         questions = self._get_questions_for_input(survey, user_input)
         answered_lines = request.env['test.user.input.line'].sudo().search([
@@ -524,7 +565,7 @@ class TestStudentPortal(http.Controller):
         # Fetch class-specific passing score and time limit
         settings = request.env['test.settings'].sudo().get_default_settings()
         student_class = user_input.student_class
-        passing_score = int(survey.scoring_success_min)
+        passing_score = settings.class4_passing_score or 88
         
         if student_class == 'class1':
             passing_score = settings.class1_passing_score
@@ -539,11 +580,13 @@ class TestStudentPortal(http.Controller):
             'survey': survey,
             'questions': questions,
             'user_input': user_input,
+            'student_name': user_input.student_fullname or request.env.user.name,
             'answered_question_ids': answered_question_ids,
             'total_display': len(questions),
             'page_name': 'test_take',
             'passing_score': passing_score,
-            'time_limit': int(survey.time_limit) if survey.is_time_limited else 0,
+            'time_limit': settings.default_time_limit,
+            'seconds_left': int((user_input.start_datetime + timedelta(minutes=settings.default_time_limit) - datetime.now()).total_seconds()) if settings.default_time_limit and user_input.start_datetime else 0,
         }
         return request.render('test.test_take_page', values)
 
@@ -561,6 +604,10 @@ class TestStudentPortal(http.Controller):
 
         if not user_input:
             return request.redirect(f'/test/take/{survey.id}')
+            
+        # Ensure start_datetime is set
+        if not user_input.start_datetime:
+            user_input.sudo().write({'start_datetime': datetime.now()})
 
         questions = self._get_questions_for_input(survey, user_input)
 
@@ -581,6 +628,18 @@ class TestStudentPortal(http.Controller):
             ('user_input_id', '=', user_input.id)])
         answered_question_ids = answered_lines.mapped('question_id').ids
 
+        settings = request.env['test.settings'].sudo().get_default_settings()
+        student_class = user_input.student_class
+        passing_score = settings.class4_passing_score or 88
+        if student_class == 'class1':
+            passing_score = settings.class1_passing_score
+        elif student_class == 'class2':
+            passing_score = settings.class2_passing_score
+        elif student_class == 'class4':
+            passing_score = settings.class4_passing_score
+        elif student_class == 'class2and4':
+            passing_score = settings.class2and4_passing_score
+
         values = {
             'survey': survey,
             'questions': questions,
@@ -593,6 +652,8 @@ class TestStudentPortal(http.Controller):
             'user_line': user_line,
             'answered_question_ids': answered_question_ids,
             'page_name': 'test_take_question',
+            'passing_score': passing_score,
+            'seconds_left': int((user_input.start_datetime + timedelta(minutes=settings.default_time_limit) - datetime.now()).total_seconds()) if settings.default_time_limit and user_input.start_datetime else 0,
         }
         return request.render('test.test_take_question_page', values)
 
@@ -636,6 +697,7 @@ class TestStudentPortal(http.Controller):
                 vals.update({
                     'student_fullname': registration.student_fullname,
                     'student_username': registration.student_username,
+                    'student_class': registration.student_class,
                 })
             user_input = request.env['test.user_input'].sudo().create(vals)
 

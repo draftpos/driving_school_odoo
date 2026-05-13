@@ -12,8 +12,7 @@
             <field name="questions_selection">all</field>
             <field name="scoring_type">scoring_with_answers</field>
             <field name="scoring_success_min">70.0</field>
-            <field name="is_time_limited">true</field>
-            <field name="time_limit">15</field>
+
         </record>
         
         <!-- Demo Question 1 -->

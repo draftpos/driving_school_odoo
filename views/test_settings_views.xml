@@ -9,25 +9,34 @@
                 <form string="Test Settings">
                     <sheet>
                         <group string="General Settings">
-                            <field name="default_time_limit"/>
-                            <field name="passing_percentage"/>
-                            <field name="allow_multiple_attempts"/>
-                            <field name="show_correct_answers"/>
-                            <field name="shuffle_questions"/>
-                            <field name="show_progress_bar"/>
+                            <group>
+                                <field name="default_time_limit"/>
+                                <field name="questions_limit"/>
+                            </group>
+                            <group>
+                                <field name="allow_multiple_attempts"/>
+                                <field name="show_correct_answers"/>
+                                <field name="shuffle_questions"/>
+                                <field name="show_progress_bar"/>
+                            </group>
+                        </group>
 
-                    <group string="Class Passing Scores">
-                        <field name="class1_passing_score"/>
-                        <field name="class2_passing_score"/>
-                        <field name="class4_passing_score"/>
-                        <field name="class2and4_passing_score"/>
-                    </group>
-                    </group>
+                        <group string="Class Passing Scores">
+                            <group>
+                                <field name="class1_passing_score"/>
+                                <field name="class2_passing_score"/>
+                            </group>
+                            <group>
+                                <field name="class4_passing_score"/>
+                                <field name="class2and4_passing_score"/>
+                            </group>
+                        </group>
+                        
                         <group string="Notification Settings">
                             <field name="send_email_notifications"/>
                         </group>
+                        
                         <group string="Display Settings">
-                            <field name="questions_limit"/>
                             <field name="questions_per_page"/>
                             <field name="show_question_navigator"/>
                         </group>
@@ -43,6 +52,9 @@
             <field name="view_mode">form</field>
             <field name="target">current</field>
         </record>
+
+        <!-- Participants Menu -->
+        <menuitem id="menu_test_participants" name="Participants" parent="menu_test_root" action="action_test_student" sequence="40"/>
 
         <!-- Settings Parent Menu -->
         <menuitem id="menu_test_settings" name="Settings" parent="menu_test_root" sequence="50"/>

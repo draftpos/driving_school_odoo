@@ -55,12 +55,30 @@
                                     <form string="Question">
                                         <field name="sequence" widget="handle"/>
                                         <group>
-                                            <field name="question" placeholder="Enter your question"/>
-                                            <field name="question_type"/>
-                                            <field name="is_scored"/>
-                                            <field name="passing_score" invisible="not is_scored"/>
-                                            <field name="constr_mandatory"/>
+                                            <group>
+                                                <field name="question" placeholder="Enter your question"/>
+                                                <field name="question_type"/>
+                                                <field name="is_scored"/>
+                                                <field name="passing_score" invisible="not is_scored"/>
+                                                <field name="constr_mandatory"/>
+                                            </group>
+                                            <group>
+                                                <field name="question_image" widget="image" class="oe_avatar" options="{'size': [128, 128]}"/>
+                                            </group>
                                         </group>
+                                        <notebook>
+                                            <page string="Answers" name="answers">
+                                                <field name="suggested_answer_ids">
+                                                    <list editable="bottom">
+                                                        <field name="sequence" widget="handle"/>
+                                                        <field name="value"/>
+                                                        <field name="answer_image" widget="image" class="oe_avatar" options="{'size': [64, 64]}"/>
+                                                        <field name="is_correct"/>
+                                                        <field name="answer_score"/>
+                                                    </list>
+                                                </field>
+                                            </page>
+                                        </notebook>
                                     </form>
                                 </field>
                             </page>
@@ -158,6 +176,63 @@
             <field name="view_mode">list,form</field>
         </record>
 
+        <!-- Test Student Views -->
+        <record id="test_student_view_tree" model="ir.ui.view">
+            <field name="name">test.student.view.list</field>
+            <field name="model">test.student</field>
+            <field name="arch" type="xml">
+                <list string="Participants">
+                    <field name="username"/>
+                    <field name="name"/>
+                    <field name="student_class"/>
+                    <field name="attempt_count"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="test_student_view_form" model="ir.ui.view">
+            <field name="name">test.student.view.form</field>
+            <field name="model">test.student</field>
+            <field name="arch" type="xml">
+                <form string="Student Participant">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="username"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="student_class"/>
+                            </group>
+                            <group>
+                                <field name="partner_id"/>
+                                <field name="attempt_count"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Test Attempts" name="attempts">
+                                <field name="user_input_ids" nolabel="1">
+                                    <list create="0" edit="0">
+                                        <field name="survey_id"/>
+                                        <field name="scoring_percentage" widget="progressbar"/>
+                                        <field name="scoring_success" string="Pass/Fail"/>
+                                        <field name="create_date" string="Date"/>
+                                        <button name="action_results_redirect" type="object" string="View Result" icon="fa-eye"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_test_student" model="ir.actions.act_window">
+            <field name="name">Participants</field>
+            <field name="res_model">test.student</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
 <!-- Test Survey Menu -->
         <menuitem id="menu_test_root" name="Test" sequence="100" web_icon="test,static/description/icon.png"/>
 
@@ -173,8 +248,7 @@
         <!-- User Inputs/Responses Menu -->
         <menuitem id="menu_test_user_inputs" name="Responses" parent="menu_test_root" action="action_test_user_input" sequence="30"/>
 
-        <!-- Participants Menu (Global - shows all participants across all tests) -->
-        <menuitem id="menu_test_participants" name="Participants" parent="menu_test_root" action="action_test_user_input" sequence="40"/>
+
 
     </data>
 </odoo>

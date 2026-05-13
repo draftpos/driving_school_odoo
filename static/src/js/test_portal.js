@@ -42,7 +42,41 @@
         });
     }
 
+    function startTimer() {
+        var timerEl = document.getElementById('timer_clock');
+        var secondsLeftEl = document.getElementById('seconds_left');
+        if (!timerEl || !secondsLeftEl) return;
+
+        var timeLeft = parseInt(secondsLeftEl.value, 10);
+        if (isNaN(timeLeft) || timeLeft <= 0) {
+            timerEl.innerText = "Time Up!";
+            return;
+        }
+
+        var interval = setInterval(function() {
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                timerEl.innerText = "Time Up!";
+                // Auto-finalize on timeout
+                saveAndGo('/test/take/' + getSurveyId() + '/finish');
+                return;
+            }
+
+            timeLeft--;
+            var mins = Math.floor(timeLeft / 60);
+            var secs = timeLeft % 60;
+            timerEl.innerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+            
+            // Visual warning when low on time
+            if (timeLeft < 60) {
+                timerEl.parentElement.style.background = '#dc2626';
+            }
+        }, 1000);
+    }
+
     function initAll() {
+        startTimer();
+
         var surveyId = getSurveyId();
         if (!surveyId) return;
 
@@ -59,7 +93,23 @@
             });
         });
 
-        // --- PREV button is a plain <a> link - no JS needed ---
+        // --- PREV button: save before navigating back ---
+        var prevBtns = document.querySelectorAll('.test-prev-btn');
+        Array.prototype.forEach.call(prevBtns, function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                saveAndGo(btn.href);
+            });
+        });
+
+        // --- FINISH button: save before finalising ---
+        var finishBtns = document.querySelectorAll('.test-finish-btn');
+        Array.prototype.forEach.call(finishBtns, function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                saveAndGo('/test/take/' + surveyId + '/finish');
+            });
+        });
 
         // --- Question number links: save in background before navigating ---
         var numLinks = document.querySelectorAll('.test-navigator-btn:not(.test-next-btn):not(.test-prev-btn)');

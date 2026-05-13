@@ -169,30 +169,8 @@
 
                         <div class="test-question-body d-flex flex-column align-items-center justify-content-center text-center">
                             <h2 class="mb-1" style="font-weight: 700; color: #1e293b; font-size: 20px;"><t t-esc="survey.title"/></h2>
-                            <p class="text-muted mb-3" style="font-size: 13px;">Welcome, <t t-esc="user_input.student_fullname"/></p>
-                            <div class="lead mb-4" t-if="survey.description">
-                                <t t-raw="survey.description"/>
-                            </div>
-                            <p class="mb-4">Answer all questions and click "Finalise" when done.</p>
-                            
-                            <!-- Test Info Summary -->
-                            <div class="w-100 mb-3 text-center" style="max-width: 500px; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                                <div class="row">
-                                    <div class="col-6 border-end">
-                                        <div style="font-size: 24px; margin-bottom: 5px;">⏱️</div>
-                                        <div style="font-size: 14px; color: #64748b;">Time Limit</div>
-                                        <div style="font-weight: 700; color: #1e293b;">
-                                            <t t-if="time_limit"><t t-esc="time_limit"/> Minutes</t>
-                                            <t t-else="">No Limit</t>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div style="font-size: 24px; margin-bottom: 5px;">✅</div>
-                                        <div style="font-size: 14px; color: #64748b;">Passing Score</div>
-                                        <div style="font-weight: 700; color: #1e293b;"><t t-esc="passing_score"/>%</div>
-                                    </div>
-                                </div>
-                            </div>
+                            <p class="text-muted mb-3" style="font-size: 13px;">Welcome, <t t-esc="student_name"/></p>
+                            <p class="mb-4">Carefully answer all questions to complete your test.</p>
                             
                             <div class="d-flex gap-3 mt-4">
                                 <a t-attf-href="/test/take/{{survey.id}}/question/1" class="test-next-btn" style="padding: 8px 20px; font-size: 14px;">
@@ -219,11 +197,15 @@
                             <div class="test-take-header-left">
                                 <span class="test-question-number">Question <t t-esc="question_number"/> of <t t-esc="total_questions"/></span>
                             </div>
-                            <div class="test-take-header-center">
-                                <span class="test-header-progress" style="color: white; font-weight: 600; font-size: 14px;">Progress: <t t-esc="int(float(question_number)/float(total_questions)*100)"/>%</span>
+                            <div class="test-take-header-center d-flex align-items-center">
+                                <span class="test-header-progress me-3" style="color: white; font-weight: 600; font-size: 14px;">Progress: <t t-esc="int(float(question_number)/float(total_questions)*100)"/>%</span>
+                                <span id="test_timer" style="color: white; font-weight: 700; font-size: 15px; background: rgba(0,0,0,0.25); padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa fa-clock-o"></i> <span id="timer_clock">--:--</span>
+                                    <input type="hidden" id="seconds_left" t-att-value="seconds_left"/>
+                                </span>
                             </div>
                             <div class="test-take-header-right">
-                                <!-- Finalise button removed -->
+                                <button type="button" class="btn btn-success test-finish-btn" style="padding: 6px 20px; font-weight: 700; border-radius: 6px; background: #10b981; border: none;">Finalize &#10003;</button>
                             </div>
                         </div>
                         
@@ -233,6 +215,9 @@
                         <div class="test-question-body">
                             <p class="test-question-label">Question <t t-esc="question_number"/></p>
                             <h3 class="test-question-title"><t t-esc="question.question"/></h3>
+                            <div t-if="question.question_image" class="test-question-image-container mb-3 text-center">
+                                <img t-attf-src="/web/image/test.question/{{question.id}}/question_image" class="img-fluid rounded" style="max-height: 150px; width: auto; border: 1px solid #e2e8f0;"/>
+                            </div>
                             
                             <form t-attf-action="/test/take/{{survey.id}}/answer" method="POST" id="test_question_form">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -255,7 +240,14 @@
                                         <t t-foreach="answers" t-as="answer">
                                             <div class="test-option">
                                                 <input type="radio" t-attf-id="answer_{{answer.id}}" name="value_suggested" t-att-value="answer.id" t-att-checked="user_line and user_line.value_suggested.id == answer.id"/>
-                                                <label t-attf-for="answer_{{answer.id}}"><t t-esc="answer.value"/></label>
+                                                <label t-attf-for="answer_{{answer.id}}">
+                                                    <div class="d-flex align-items-center">
+                                                        <div t-if="answer.answer_image" class="me-2">
+                                                            <img t-attf-src="/web/image/test.question.answer/{{answer.id}}/answer_image" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"/>
+                                                        </div>
+                                                        <span><t t-esc="answer.value"/></span>
+                                                    </div>
+                                                </label>
                                             </div>
                                         </t>
                                     </div>
@@ -268,33 +260,48 @@
                                         <t t-foreach="answers" t-as="answer">
                                             <div class="test-option">
                                                 <input type="checkbox" t-attf-id="answer_{{answer.id}}" name="value_suggested_ids" t-att-value="answer.id"/>
-                                                <label t-attf-for="answer_{{answer.id}}"><t t-esc="answer.value"/></label>
+                                                <label t-attf-for="answer_{{answer.id}}">
+                                                    <div class="d-flex align-items-center">
+                                                        <div t-if="answer.answer_image" class="me-2">
+                                                            <img t-attf-src="/web/image/test.question.answer/{{answer.id}}/answer_image" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"/>
+                                                        </div>
+                                                        <span><t t-esc="answer.value"/></span>
+                                                    </div>
+                                                </label>
                                             </div>
                                         </t>
                                     </div>
                                 </t>
                                 
-                                <!-- Navigation Buttons (Inline) -->
-                                <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                                <!-- Footer Navigation Row (Prev | Navigator | Next) -->
+                                <div class="test-take-footer d-flex justify-content-between align-items-center px-4 border-top" style="background: #f8fafc; height: 80px; position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;">
                                     <t t-set="is_first" t-value="question_number == 1"/>
                                     <t t-set="is_last" t-value="question_number == total_questions"/>
                                     
-                                    <div>
+                                    <div style="min-width: 120px;">
                                         <t t-if="not is_first">
-                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{question_number - 1}}" class="btn btn-secondary" style="padding: 12px 30px; font-weight: 600;">&#8592; Previous</a>
+                                            <a t-attf-href="/test/take/{{survey.id}}/question/{{question_number - 1}}" class="btn btn-secondary test-prev-btn" style="padding: 10px 20px; font-weight: 600; font-size: 13px;">&#8592; Previous</a>
                                         </t>
                                     </div>
                                     
-                                    <div class="text-muted font-weight-bold">
-                                        Question <t t-esc="question_number"/> / <t t-esc="total_questions"/>
+                                    <div class="flex-grow-1 mx-3">
+                                        <div class="test-navigator-grid" style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;">
+                                            <t t-foreach="range(1, total_questions + 1)" t-as="q_idx">
+                                                <a t-attf-href="/test/take/{{survey.id}}/question/{{q_idx}}" 
+                                                   t-attf-class="test-navigator-btn {{'active' if q_idx == question_number else ('answered' if q_idx in answered_question_ids else 'unanswered')}}"
+                                                   style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 11px; transition: all 0.2s;">
+                                                    <t t-esc="q_idx"/>
+                                                </a>
+                                            </t>
+                                        </div>
                                     </div>
                                     
-                                    <div>
+                                    <div style="min-width: 120px; text-align: right;">
                                         <t t-if="not is_last">
-                                            <button type="submit" class="btn btn-primary" style="padding: 12px 40px; font-weight: 600;">Next &#8594;</button>
+                                            <button type="button" class="btn btn-primary test-next-btn" style="padding: 10px 30px; font-weight: 600; font-size: 13px;">Next &#8594;</button>
                                         </t>
                                         <t t-else="">
-                                            <!-- Submit logic handled elsewhere or hidden as requested -->
+                                            <button type="button" class="btn btn-success test-finish-btn" style="padding: 10px 30px; font-weight: 700; font-size: 13px; background: #10b981; border: none;">Finalize &#10003;</button>
                                         </t>
                                     </div>
                                 </div>
@@ -449,6 +456,18 @@
                                     </div>
                                     
                                     <div class="card-body p-5 text-center">
+                                        <!-- Student Info and Result -->
+                                        <div class="mb-4">
+                                            <h2 class="fw-bold mb-1"><t t-esc="user_input.student_fullname"/></h2>
+                                            <div class="text-muted fw-bold mb-3">
+                                                Class: <t t-esc="dict([('class1','Class 1'),('class2','Class 2'),('class4','Class 4'),('class2and4','Class 2 &amp; 4')]).get(user_input.student_class, user_input.student_class)"/>
+                                            </div>
+                                            <div t-attf-class="alert {{'alert-success' if user_input.scoring_success else 'alert-danger'}} rounded-pill fw-bold" style="padding: 10px 30px; display: inline-block;">
+                                                <t t-if="user_input.scoring_success">PASSED</t>
+                                                <t t-else="">FAILED</t>
+                                            </div>
+                                        </div>
+
                                         <!-- Score Circle -->
                                         <div class="d-inline-flex align-items-center justify-content-center mb-4" style="width: 180px; height: 180px; border-radius: 50%; border: 8px solid #f1f5f9; background: white; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
                                             <div class="text-center">

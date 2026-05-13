@@ -22,6 +22,7 @@ class TestUserInput(models.Model):
     nickname = fields.Char('Nickname')
 
     # Student details
+    student_id = fields.Many2one('test.student', string='Student Participant', ondelete='cascade')
     student_fullname = fields.Char('Student Full Name')
     student_username = fields.Char('Student Username')
     student_id_number = fields.Char('Student ID Number')
@@ -85,7 +86,8 @@ class TestUserInput(models.Model):
                 user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
                 # Use class-specific passing score if available, otherwise fallback to survey default
                 settings = self.env['test.settings'].sudo().get_default_settings()
-                passing_score = user_input.survey_id.scoring_success_min or 60.0
+                # Default fallback if no class is found (e.g. legacy records or admin preview)
+                passing_score = settings.class4_passing_score or 88
                 
                 if user_input.student_class == 'class1':
                     passing_score = settings.class1_passing_score
@@ -136,6 +138,15 @@ class TestUserInput(models.Model):
             'end_datetime': datetime.now(),
             'state': 'skip',
         })
+
+    def action_results_redirect(self):
+        """Redirect to the test results page"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/test/results/%s' % self.id,
+            'target': 'new',
+        }
 
 
 class TestUserInputLine(models.Model):

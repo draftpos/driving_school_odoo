@@ -1,3 +1,8 @@
+/* Force hide Odoo navbar and debug tools for a true full-screen experience */
+header.o_navbar, .o_main_navbar, .o_debug_manager {
+    display: none !important;
+}
+
 /* Custom Register Page - No Odoo Header/Footer */
 .custom-register-wrapper {
     min-height: 100vh;
@@ -373,7 +378,7 @@
     padding: 15px 30px;
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 15px;
+    padding-bottom: 100px;
 }
 
 .test-question-label {
@@ -648,4 +653,31 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Question Navigator Button Styles */
+.test-navigator-btn.active {
+    background: #6366f1 !important;
+    color: white !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+    transform: translateY(-2px);
+}
+
+.test-navigator-btn.answered {
+    background: #10b981 !important;
+    color: white !important;
+    border-color: #10b981 !important;
+}
+
+.test-navigator-btn.unanswered {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.test-navigator-btn.unanswered:hover {
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
+    border-color: #cbd5e1 !important;
 }
