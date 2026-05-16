@@ -15,12 +15,14 @@ user inputs, and scoring capabilities.
         'base',
         'mail',
         'website',
+        'portal',
     ],
     'data': [
         'security/ir.model.access.csv',
         'views/test_survey_views.xml',
         'views/test_settings_views.xml',
         'views/portal_templates.xml',
+        'data/default_student_data.xml',
 ],
     'assets': {
         'web.assets_frontend': [

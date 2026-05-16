@@ -5,6 +5,48 @@ import random
 from datetime import datetime, timedelta
 from odoo import http, _, fields
 from odoo.http import request
+from odoo.addons.web.controllers.home import Home
+from odoo.addons.portal.controllers.portal import CustomerPortal
+
+
+class TestCustomerPortal(CustomerPortal):
+    """Override the portal home to redirect students to the test registration page."""
+
+    @http.route(['/my', '/my/home'], type='http', auth='user', website=True)
+    def home(self, page=0, date_begin=None, date_end=None, sortby=None, **kw):
+        """
+        Intercept the portal home page (/my).
+        Non-admin users (students) are redirected to /test/register.
+        Admins fall through to the standard portal/backend.
+        """
+        user = request.env.user
+        try:
+            if user.has_group('base.group_system'):
+                return request.redirect('/odoo')
+        except Exception:
+            pass
+        return request.redirect('/test/register')
+
+
+class TestHome(Home):
+    """Override Odoo's Home controller to intercept post-login redirects."""
+
+    def _login_redirect(self, uid, redirect=None):
+        """
+        Called immediately after successful login.
+        Redirects non-admin users straight to /test/register
+        so they never reach the backend or portal home.
+        If a specific redirect URL was already set (e.g. from a link),
+        honour it for admins only.
+        """
+        try:
+            user = request.env['res.users'].sudo().browse(uid)
+            if user.has_group('base.group_system'):
+                return super()._login_redirect(uid, redirect=redirect)
+        except Exception:
+            pass
+        # All non-admin users (students, portal users) go to register
+        return redirect if redirect and redirect.startswith('/test') else '/test/register'
 
 
 class TestStudentPortal(http.Controller):
@@ -39,6 +81,35 @@ class TestStudentPortal(http.Controller):
     def web_redirect(self, **kw):
         if request.env.user._is_public():
             return None
+        user = request.env.user
+        try:
+            if user.has_group('base.group_system'):
+                return request.redirect('/odoo')
+        except Exception:
+            pass
+        return request.redirect('/test/register')
+
+    @http.route(['/web/login_successful'], type='http', auth='user', website=True, sitemap=False)
+    def login_successful(self, **kwargs):
+        """
+        Odoo 19 redirects portal/external users here after login.
+        We intercept it to send students to /test/register instead.
+        """
+        user = request.env.user
+        try:
+            if user.has_group('base.group_system'):
+                return request.redirect('/odoo')
+        except Exception:
+            pass
+        return request.redirect('/test/register')
+
+    @http.route(['/my', '/my/home'], type='http', auth='user', website=True)
+    def portal_home_redirect(self, **kw):
+        """
+        Portal users land on /my after login (Odoo portal home).
+        Redirect students to /test/register instead.
+        Admins are sent to the backend.
+        """
         user = request.env.user
         try:
             if user.has_group('base.group_system'):

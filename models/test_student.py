@@ -27,3 +27,39 @@ class TestStudent(models.Model):
     _sql_constraints = [
         ('username_uniq', 'unique(username)', 'Username must be unique!'),
     ]
+
+    @api.model
+    def _setup_default_student(self):
+        """
+        Ensure the demo 'student' user exists as a plain internal user
+        (base.group_user), NOT a portal user. This guarantees Odoo redirects
+        them to /web after login, which our portal.py controller then
+        intercepts to send them to /test/register.
+        """
+        student_user = self.env['res.users'].sudo().search(
+            [('login', '=', 'student')], limit=1
+        )
+        if not student_user:
+            # Create the demo student as an internal user
+            partner = self.env['res.partner'].sudo().create({
+                'name': 'Demo Student',
+                'email': 'student@example.com',
+            })
+            student_user = self.env['res.users'].sudo().create({
+                'name': 'Demo Student',
+                'login': 'student',
+                'password': 'student',
+                'partner_id': partner.id,
+                'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
+            })
+        else:
+            # Remove portal group, ensure internal user group only
+            portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
+            internal_group = self.env.ref('base.group_user')
+            if portal_group and portal_group in student_user.groups_id:
+                student_user.sudo().write({
+                    'groups_id': [
+                        (3, portal_group.id),   # unlink portal group
+                        (4, internal_group.id),  # add internal group
+                    ]
+                })

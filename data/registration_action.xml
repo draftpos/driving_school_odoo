@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- URL Action for Registration -->
+        <record id="action_test_registration_url" model="ir.actions.act_url">
+            <field name="name">Student Registration</field>
+            <field name="url">/test/register</field>
+            <field name="target">self</field>
+        </record>
+
+        <!-- The function _setup_default_student will now also set this action as the home action -->
+    </data>
+</odoo>
