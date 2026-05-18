@@ -50,15 +50,15 @@ class TestStudent(models.Model):
                 'login': 'student',
                 'password': 'student',
                 'partner_id': partner.id,
-                'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
+                'group_ids': [(6, 0, [self.env.ref('base.group_user').id])],
             })
         else:
             # Remove portal group, ensure internal user group only
             portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
             internal_group = self.env.ref('base.group_user')
-            if portal_group and portal_group in student_user.groups_id:
+            if portal_group and portal_group in student_user.group_ids:
                 student_user.sudo().write({
-                    'groups_id': [
+                    'group_ids': [
                         (3, portal_group.id),   # unlink portal group
                         (4, internal_group.id),  # add internal group
                     ]
