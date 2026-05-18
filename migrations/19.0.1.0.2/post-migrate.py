@@ -31,14 +31,14 @@ def migrate(cr, version):
                 'login': 'student',
                 'password': 'student',
                 'partner_id': partner.id,
-                'groups_id': [(6, 0, [internal_group.id])],
+                'group_ids': [(6, 0, [internal_group.id])],
                 'active': True,
             })
         else:
             # Ensure it has the internal group even if it already exists
             internal_group = env.ref('base.group_user')
-            if internal_group not in student_user.groups_id:
-                student_user.write({'groups_id': [(4, internal_group.id)]})
+            if internal_group not in student_user.group_ids:
+                student_user.write({'group_ids': [(4, internal_group.id)]})
             
             # Ensure it is active
             if not student_user.active:

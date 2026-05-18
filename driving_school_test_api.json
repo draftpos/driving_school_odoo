@@ -1,0 +1,705 @@
+{
+  "info": {
+    "name": "Driving School Test API",
+    "description": "Complete API for Driving School Test Module - Questions, Surveys, and Answers Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://80.241.213.153:8069",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "survey_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "question_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Login with API Key Generation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"db\": \"showline_odoo\",\n    \"login\": \"admin@showline.co.zw\",\n    \"password\": \"admin123\",\n    \"generate_api_key\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login without API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"db\": \"showline_odoo\",\n    \"login\": \"admin@showline.co.zw\",\n    \"password\": \"admin123\",\n    \"generate_api_key\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User (Session)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Surveys / Tests",
+      "item": [
+        {
+          "name": "List All Surveys",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/surveys?limit=100&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "surveys"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100",
+                  "description": "Maximum number of records to return"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of records to skip"
+                },
+                {
+                  "key": "include_questions",
+                  "value": "false",
+                  "description": "Include questions in response"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Survey with Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/surveys/1?include_questions=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "surveys", "1"],
+              "query": [
+                {
+                  "key": "include_questions",
+                  "value": "true",
+                  "description": "Include all questions in the survey"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "❓ Questions Management",
+      "item": [
+        {
+          "name": "List All Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions?limit=100&offset=0&include_answers=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100",
+                  "description": "Maximum number of records to return"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of records to skip"
+                },
+                {
+                  "key": "include_answers",
+                  "value": "true",
+                  "description": "Include answers in response"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Questions by Survey",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions?survey_id=1&include_answers=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions"],
+              "query": [
+                {
+                  "key": "survey_id",
+                  "value": "1",
+                  "description": "Filter questions by survey ID"
+                },
+                {
+                  "key": "include_answers",
+                  "value": "true",
+                  "description": "Include answers in response"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Question",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions/1?include_answers=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions", "1"],
+              "query": [
+                {
+                  "key": "include_answers",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Simple Choice Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"survey_id\": 1,\n    \"question\": \"What is the safe following distance on a dry road?\",\n    \"question_type\": \"simple_choice\",\n    \"sequence\": 10,\n    \"is_scored\": true,\n    \"passing_score\": 70,\n    \"constr_mandatory\": true,\n    \"answers\": [\n        {\n            \"value\": \"2 seconds\",\n            \"is_correct\": true,\n            \"answer_score\": 10,\n            \"sequence\": 1\n        },\n        {\n            \"value\": \"1 second\",\n            \"is_correct\": false,\n            \"answer_score\": 0,\n            \"sequence\": 2\n        },\n        {\n            \"value\": \"3 seconds\",\n            \"is_correct\": false,\n            \"answer_score\": 0,\n            \"sequence\": 3\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Create Multiple Choice Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"survey_id\": 1,\n    \"question\": \"Which of the following are required for a valid driver's license? (Select all that apply)\",\n    \"question_type\": \"multiple_choice\",\n    \"sequence\": 20,\n    \"is_scored\": true,\n    \"passing_score\": 70,\n    \"constr_mandatory\": true,\n    \"answers\": [\n        {\n            \"value\": \"Pass written test\",\n            \"is_correct\": true,\n            \"answer_score\": 5,\n            \"sequence\": 1\n        },\n        {\n            \"value\": \"Pass practical driving test\",\n            \"is_correct\": true,\n            \"answer_score\": 5,\n            \"sequence\": 2\n        },\n        {\n            \"value\": \"Provide proof of insurance\",\n            \"is_correct\": true,\n            \"answer_score\": 5,\n            \"sequence\": 3\n        },\n        {\n            \"value\": \"Own a car\",\n            \"is_correct\": false,\n            \"answer_score\": 0,\n            \"sequence\": 4\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Create Text Box Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"survey_id\": 1,\n    \"question\": \"Explain the procedure for parallel parking in your own words.\",\n    \"question_type\": \"text_box\",\n    \"sequence\": 30,\n    \"is_scored\": false,\n    \"constr_mandatory\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"question\": \"What is the safe following distance on a WET road?\",\n    \"passing_score\": 80\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions/{{question_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions", "{{question_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions/{{question_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions", "{{question_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Batch Operations",
+      "item": [
+        {
+          "name": "Batch Create Multiple Questions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"survey_id\": 1,\n    \"questions\": [\n        {\n            \"question\": \"At what blood alcohol concentration (BAC) is it illegal to drive?\",\n            \"question_type\": \"simple_choice\",\n            \"sequence\": 40,\n            \"answers\": [\n                {\"value\": \"0.08%\", \"is_correct\": true, \"answer_score\": 10},\n                {\"value\": \"0.05%\", \"is_correct\": false, \"answer_score\": 0},\n                {\"value\": \"0.10%\", \"is_correct\": false, \"answer_score\": 0}\n            ]\n        },\n        {\n            \"question\": \"What should you do when approaching a yellow traffic light?\",\n            \"question_type\": \"simple_choice\",\n            \"sequence\": 50,\n            \"answers\": [\n                {\"value\": \"Stop if safe to do so\", \"is_correct\": true, \"answer_score\": 10},\n                {\"value\": \"Speed up to beat the light\", \"is_correct\": false, \"answer_score\": 0},\n                {\"value\": \"Continue at same speed\", \"is_correct\": false, \"answer_score\": 0}\n            ]\n        },\n        {\n            \"question\": \"When is it legal to use a mobile phone while driving?\",\n            \"question_type\": \"simple_choice\",\n            \"sequence\": 60,\n            \"answers\": [\n                {\"value\": \"Using hands-free with Bluetooth\", \"is_correct\": true, \"answer_score\": 10},\n                {\"value\": \"Never while driving\", \"is_correct\": false, \"answer_score\": 0},\n                {\"value\": \"Only in emergencies\", \"is_correct\": false, \"answer_score\": 0}\n            ]\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions/batch",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions", "batch"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Answers Management",
+      "item": [
+        {
+          "name": "List All Answers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/answers?limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "answers"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Answers by Question",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/answers?question_id={{question_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "answers"],
+              "query": [
+                {
+                  "key": "question_id",
+                  "value": "{{question_id}}",
+                  "description": "Filter answers by question ID"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 Complete Workflow Example",
+      "item": [
+        {
+          "name": "1. Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "health"]
+            }
+          }
+        },
+        {
+          "name": "2. Login & Save API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"db\": \"showline_odoo\",\n    \"login\": \"admin@showline.co.zw\",\n    \"password\": \"admin123\",\n    \"generate_api_key\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "3. List Surveys",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/surveys?include_questions=false",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "surveys"],
+              "query": [
+                {
+                  "key": "include_questions",
+                  "value": "false"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Get Survey Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/surveys/1?include_questions=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "surveys", "1"],
+              "query": [
+                {
+                  "key": "include_questions",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Create Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"survey_id\": 1,\n    \"question\": \"What is the maximum speed limit in a residential area?\",\n    \"question_type\": \"simple_choice\",\n    \"answers\": [\n        {\"value\": \"25 mph (40 km/h)\", \"is_correct\": true, \"answer_score\": 10},\n        {\"value\": \"35 mph (56 km/h)\", \"is_correct\": false, \"answer_score\": 0},\n        {\"value\": \"45 mph (72 km/h)\", \"is_correct\": false, \"answer_score\": 0}\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions"]
+            }
+          }
+        },
+        {
+          "name": "6. List Questions to Verify",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "7. Get Single Question",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions", "1"]
+            }
+          }
+        },
+        {
+          "name": "8. Update Question",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"question\": \"What is the maximum speed limit in a residential area? (Updated)\",\n    \"passing_score\": 75\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions", "1"]
+            }
+          }
+        },
+        {
+          "name": "9. Batch Create Questions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"survey_id\": 1,\n    \"questions\": [\n        {\n            \"question\": \"What does a solid yellow line on your side of the road mean?\",\n            \"question_type\": \"simple_choice\",\n            \"answers\": [\n                {\"value\": \"No passing\", \"is_correct\": true, \"answer_score\": 10},\n                {\"value\": \"Passing allowed\", \"is_correct\": false, \"answer_score\": 0}\n            ]\n        },\n        {\n            \"question\": \"When should you use your high beams?\",\n            \"question_type\": \"simple_choice\",\n            \"answers\": [\n                {\"value\": \"On dark roads with no oncoming traffic\", \"is_correct\": true, \"answer_score\": 10},\n                {\"value\": \"Always at night\", \"is_correct\": false, \"answer_score\": 0},\n                {\"value\": \"In foggy conditions\", \"is_correct\": false, \"answer_score\": 0}\n            ]\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions/batch",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions", "batch"]
+            }
+          }
+        },
+        {
+          "name": "10. Delete Question (Optional)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/test/questions/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "test", "questions", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
