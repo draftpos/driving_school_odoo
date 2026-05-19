@@ -511,9 +511,11 @@ class TestStudentPortal(http.Controller):
             is_admin = request.env.user.has_group('base.group_system')
         except Exception:
             pass
+        questions = self._get_questions_for_input(user_input.survey_id, user_input)
         values = {
             'page_name': 'test_results',
             'user_input': user_input,
+            'questions': questions,
             'is_admin': is_admin,
         }
         return request.render('test.test_results_page', values)
@@ -664,6 +666,9 @@ class TestStudentPortal(http.Controller):
 
     def _get_questions_for_input(self, survey, user_input):
         """Return the deterministic question list for a given user_input."""
+        if user_input and user_input.question_ids:
+            return user_input.question_ids.sorted(key=lambda q: q.sequence)
+
         all_questions = request.env['test.question'].sudo().search([
             ('survey_id', '=', survey.id)], order='sequence ASC')
         total_questions = len(all_questions)
@@ -719,11 +724,14 @@ class TestStudentPortal(http.Controller):
         # Calculate session-specific max possible score
         max_possible = 0.0
         for q in questions:
-            if q.passing_score:
-                max_possible += q.passing_score
-            elif q.suggested_answer_ids:
+            if q.suggested_answer_ids:
                 max_possible += sum(a.answer_score for a in q.suggested_answer_ids if a.answer_score > 0)
-        user_input.sudo().write({'max_scoring_possible': max_possible})
+            else:
+                max_possible += 1.0
+        user_input.sudo().write({
+            'max_scoring_possible': max_possible,
+            'question_ids': [(6, 0, questions.ids)],
+        })
 
         answered_lines = request.env['test.user.input.line'].sudo().search([
             ('user_input_id', '=', user_input.id)])
@@ -864,6 +872,17 @@ class TestStudentPortal(http.Controller):
                     'student_class': registration.student_class,
                 })
             user_input = request.env['test.user_input'].sudo().create(vals)
+            questions = self._get_questions_for_input(survey, user_input)
+            max_possible = 0.0
+            for q in questions:
+                if q.suggested_answer_ids:
+                    max_possible += sum(a.answer_score for a in q.suggested_answer_ids if a.answer_score > 0)
+                else:
+                    max_possible += 1.0
+            user_input.sudo().write({
+                'max_scoring_possible': max_possible,
+                'question_ids': [(6, 0, questions.ids)],
+            })
 
         # --- save the answer (only if a question was supplied) ------------
         if question_id:

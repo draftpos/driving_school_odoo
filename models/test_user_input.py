@@ -46,6 +46,15 @@ class TestUserInput(models.Model):
     scoring_percentage = fields.Float('Score (%)', compute='_compute_scores', readonly=True, store=True)
     scoring_answers = fields.Integer('# Correct Answers', compute='_compute_scores', readonly=True, store=True)
     max_scoring_possible = fields.Float('Max Possible Score', help="Maximum score obtainable for the specific questions assigned to this attempt.")
+    question_ids = fields.Many2many(
+        'test.question',
+        'test_user_input_question_rel',
+        'user_input_id',
+        'question_id',
+        string='Selected Questions',
+        readonly=True,
+        copy=False,
+    )
 
     # Predefined answers
     user_input_line_ids = fields.One2many('test.user.input.line', 'user_input_id', string='Answers')
@@ -70,6 +79,7 @@ class TestUserInput(models.Model):
         'user_input_line_ids.answer_is_correct',
         'survey_id.scoring_type',
         'survey_id.scoring_max_obtainable',
+        'max_scoring_possible',
     )
     def _compute_scores(self):
         for user_input in self:
@@ -77,16 +87,11 @@ class TestUserInput(models.Model):
             answers_count = len(user_input.user_input_line_ids.filtered(lambda l: l.answer_is_correct))
 
             user_input.scoring_total = total_score
+            max_score = float(user_input.max_scoring_possible or user_input.survey_id.scoring_max_obtainable or 0.0)
+            user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
 
             if user_input.survey_id.scoring_type != 'no_scoring':
                 settings = self.env['test.settings'].sudo().get_default_settings()
-                limit = settings.get_questions_limit() or 25
-                
-                # The user wants all results to be "out of 25" (the limit)
-                # regardless of how many questions are actually in the survey.
-                max_score = float(limit)
-                
-                user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
                 # Use class-specific passing score if available
                 passing_score = settings.class4_passing_score or 88
                 
@@ -101,7 +106,6 @@ class TestUserInput(models.Model):
                 
                 user_input.scoring_success = user_input.scoring_percentage >= passing_score
             else:
-                user_input.scoring_percentage = 0
                 user_input.scoring_success = False
 
             user_input.scoring_answers = answers_count

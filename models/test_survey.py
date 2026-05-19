@@ -116,15 +116,15 @@ class TestSurvey(models.Model):
         for survey in self:
             survey.question_count = len(survey.question_ids)
 
-    @api.depends('question_ids', 'question_ids.passing_score', 'question_ids.suggested_answer_ids', 'question_ids.suggested_answer_ids.answer_score')
+    @api.depends('question_ids', 'question_ids.suggested_answer_ids', 'question_ids.suggested_answer_ids.answer_score')
     def _compute_scoring_max_obtainable(self):
         for survey in self:
             total_score = 0.0
             for question in survey.question_ids:
-                if question.passing_score:
-                    total_score += question.passing_score
-                elif question.suggested_answer_ids:
+                if question.suggested_answer_ids:
                     total_score += sum(answer.answer_score for answer in question.suggested_answer_ids if answer.answer_score > 0)
+                else:
+                    total_score += 1.0
             survey.scoring_max_obtainable = total_score
 
     @api.depends('user_input_ids.state', 'user_input_ids.scoring_success', 'user_input_ids.scoring_percentage')
