@@ -535,22 +535,32 @@
                                                     </t>
                                                 </div>
                                                 <h5 class="fw-bold mb-3"><t t-esc="question.question"/></h5>
-                                                
+                                                <t t-if="question.question_image">
+                                                    <div class="mb-3 text-center">
+                                                        <img t-att-src="'/web/image/test.question/%s/question_image' % question.id" class="img-fluid rounded" style="max-height: 180px; width: auto; border: 1px solid #e2e8f0;"/>
+                                                    </div>
+                                                </t>
                                                 <div class="test-answer-group mt-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                                                     <t t-if="question.question_type == 'text_box'"><div class="test-option answered" style="grid-column: span 3; background: #f8fafc;"><t t-esc="line.value_text_box if line else 'No answer provided'"/></div></t>
                                                     <t t-elif="question.question_type == 'simple_choice'">
                                                         <t t-foreach="question.suggested_answer_ids" t-as="ans">
-                                                            <div t-attf-class="test-option {{'answered' if line and line.value_suggested.id == ans.id else ''}}" style="border-radius: 8px; padding: 10px;">
+                                                            <div t-attf-class="test-option {{'answered' if line and line.value_suggested.id == ans.id else ''}}" style="border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 8px;">
                                                                 <input type="radio" disabled="disabled" t-att-checked="line and line.value_suggested.id == ans.id"/>
-                                                                <t t-esc="ans.value"/>
+                                                                <t t-if="ans.answer_image">
+                                                                    <img t-att-src="'/web/image/test.question.answer/%s/answer_image' % ans.id" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;"/>
+                                                                </t>
+                                                                <div><t t-esc="ans.value"/></div>
                                                             </div>
                                                         </t>
                                                     </t>
                                                     <t t-elif="question.question_type == 'multiple_choice'">
                                                         <t t-foreach="question.suggested_answer_ids" t-as="ans">
-                                                            <div t-attf-class="test-option {{'answered' if line and ans.id in line.value_suggested_ids.ids else ''}}" style="border-radius: 8px; padding: 10px;">
+                                                            <div t-attf-class="test-option {{'answered' if line and ans.id in line.value_suggested_ids.ids else ''}}" style="border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 8px;">
                                                                 <input type="checkbox" disabled="disabled" t-att-checked="line and ans.id in line.value_suggested_ids.ids"/>
-                                                                <t t-esc="ans.value"/>
+                                                                <t t-if="ans.answer_image">
+                                                                    <img t-att-src="'/web/image/test.question.answer/%s/answer_image' % ans.id" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;"/>
+                                                                </t>
+                                                                <div><t t-esc="ans.value"/></div>
                                                             </div>
                                                         </t>
                                                     </t>
@@ -560,10 +570,28 @@
                                                     <div class="p-3 bg-light rounded-3 mt-3">
                                                         <div class="small fw-bold text-uppercase opacity-50 mb-1">Correct Answer</div>
                                                         <t t-if="question.question_type == 'simple_choice'">
-                                                            <t t-foreach="question.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/></t></t>
+                                                            <t t-foreach="question.suggested_answer_ids" t-as="ans">
+                                                                <t t-if="ans.is_correct">
+                                                                    <div style="display:flex; align-items:center; gap:8px;">
+                                                                        <t t-if="ans.answer_image">
+                                                                            <img t-att-src="'/web/image/test.question.answer/%s/answer_image' % ans.id" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;"/>
+                                                                        </t>
+                                                                        <div><t t-esc="ans.value"/></div>
+                                                                    </div>
+                                                                </t>
+                                                            </t>
                                                         </t>
                                                         <t t-elif="question.question_type == 'multiple_choice'">
-                                                            <t t-foreach="question.suggested_answer_ids" t-as="ans"><t t-if="ans.is_correct"><t t-esc="ans.value"/><t t-if="not ans_last">, </t></t></t>
+                                                            <t t-foreach="question.suggested_answer_ids" t-as="ans">
+                                                                <t t-if="ans.is_correct">
+                                                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom: 4px;">
+                                                                        <t t-if="ans.answer_image">
+                                                                            <img t-att-src="'/web/image/test.question.answer/%s/answer_image' % ans.id" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;"/>
+                                                                        </t>
+                                                                        <div><t t-esc="ans.value"/></div>
+                                                                    </div>
+                                                                </t>
+                                                            </t>
                                                         </t>
                                                         <t t-elif="question.question_type == 'text_box'">
                                                             <t t-esc="question.answer_comment or 'No comment available.'"/>
