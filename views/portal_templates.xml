@@ -445,9 +445,9 @@
             <t t-call="test.test_minimal_layout">
                 <t t-set="title" t-value="'Test Results - ' + user_input.survey_id.title"/>
                 <div class="test-take-wrapper" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); overflow-y: auto;">
-                    <div class="container py-5">
+                    <div class="container-fluid px-4 py-5">
                         <div class="row justify-content-center">
-                            <div class="col-md-8 col-lg-6">
+                            <div class="col-12">
                                 <!-- Main Result Card -->
                                 <div class="card border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
                                     <div class="card-header text-center py-5" t-attf-style="background: {{'linear-gradient(135deg, #059669 0%, #10b981 100%)' if user_input.scoring_success else 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)'}}; color: white;">
@@ -462,12 +462,18 @@
                                         <!-- Student Info and Result -->
                                         <div class="mb-4">
                                             <h2 class="fw-bold mb-1"><t t-esc="user_input.student_fullname"/></h2>
+                                            <t t-set="class_name" t-value="dict([('class1','Class 1'),('class2','Class 2'),('class4','Class 4'),('class2and4','Class 2 &amp; 4')]).get(user_input.student_class, user_input.student_class)"/>
                                             <div class="text-muted fw-bold mb-3">
-                                                Class: <t t-esc="dict([('class1','Class 1'),('class2','Class 2'),('class4','Class 4'),('class2and4','Class 2 &amp; 4')]).get(user_input.student_class, user_input.student_class)"/>
+                                                Class: <t t-esc="class_name"/>
                                             </div>
-                                            <div t-attf-class="alert {{'alert-success' if user_input.scoring_success else 'alert-danger'}} rounded-pill fw-bold" style="padding: 10px 30px; display: inline-block;">
+                                            <div t-attf-class="alert {{'alert-success' if user_input.scoring_success else 'alert-danger'}} rounded-4 fw-bold shadow-sm" style="padding: 12px 30px; display: inline-block; text-align: center;">
                                                 <t t-if="user_input.scoring_success">PASSED</t>
-                                                <t t-else="">FAILED</t>
+                                                <t t-else="">
+                                                    <div style="font-size: 18px; margin-bottom: 4px;">FAILED</div>
+                                                    <div style="font-size: 13px; font-weight: normal; opacity: 0.9;">
+                                                        Passing mark for <t t-esc="class_name"/> is <t t-esc="int(passing_score)"/>%
+                                                    </div>
+                                                </t>
                                             </div>
                                         </div>
 
@@ -520,13 +526,14 @@
                                 <!-- Review Section -->
                                 <div id="preview-section" class="mt-5" style="display: none;">
                                     <h3 class="fw-bold mb-4 px-3">Question Review</h3>
-                                    <t t-foreach="user_input.survey_id.question_ids" t-as="question">
+                                    <t t-foreach="assigned_questions" t-as="question">
                                         <t t-set="line" t-value="user_input.user_input_line_ids.filtered(lambda l: l.question_id.id == question.id)"/>
                                         <t t-set="line" t-value="line[0] if line else False"/>
-                                        <div class="card border-0 shadow-sm mb-3 rounded-4" t-attf-style="border-left: 6px solid {{'#10b981' if line and line.answer_is_correct else '#ef4444' if line else '#94a3b8'}} !important;">
+                                        <t t-set="is_answered" t-value="line and (line.value_suggested or line.value_suggested_ids or line.value_text_box or line.value_numerical)"/>
+                                        <div class="card border-0 shadow-sm mb-3 rounded-4" t-attf-style="border-left: 6px solid {{'#10b981' if is_answered and line.answer_is_correct else '#ef4444' if is_answered else '#94a3b8'}} !important;">
                                             <div class="card-body p-4">
                                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                                    <t t-if="line">
+                                                    <t t-if="is_answered">
                                                         <span class="badge rounded-pill px-3 py-2" t-attf-class="{{'bg-success' if line.answer_is_correct else 'bg-danger'}}" t-esc="'Correct' if line.answer_is_correct else 'Incorrect'"/>
                                                         <span class="text-muted small">Score: <t t-esc="line.answer_score"/></span>
                                                     </t>
@@ -538,7 +545,7 @@
                                                 <h5 class="fw-bold mb-3"><t t-esc="question.question"/></h5>
                                                 
                                                 <div class="test-answer-group mt-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                                                    <t t-if="question.question_type == 'text_box'"><div class="test-option answered" style="grid-column: span 3; background: #f8fafc;"><t t-esc="line.value_text_box if line else 'No answer provided'"/></div></t>
+                                                    <t t-if="question.question_type == 'text_box'"><div class="test-option answered" style="grid-column: span 3; background: #f8fafc;"><t t-esc="line.value_text_box if is_answered and line.value_text_box else 'No answer provided'"/></div></t>
                                                     <t t-elif="question.question_type == 'simple_choice'">
                                                         <t t-foreach="question.suggested_answer_ids" t-as="ans">
                                                             <div t-attf-class="test-option {{'answered' if line and line.value_suggested.id == ans.id else ''}}" style="border-radius: 8px; padding: 10px;">
@@ -557,7 +564,7 @@
                                                     </t>
                                                 </div>
 
-                                                <t t-if="not line or not line.answer_is_correct">
+                                                <t t-if="not is_answered or not line.answer_is_correct">
                                                     <div class="p-3 bg-light rounded-3 mt-3">
                                                         <div class="small fw-bold text-uppercase opacity-50 mb-1">Correct Answer</div>
                                                         <t t-if="question.question_type == 'simple_choice'">

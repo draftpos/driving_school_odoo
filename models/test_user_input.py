@@ -78,31 +78,27 @@ class TestUserInput(models.Model):
 
             user_input.scoring_total = total_score
 
-            if user_input.survey_id.scoring_type != 'no_scoring':
-                settings = self.env['test.settings'].sudo().get_default_settings()
-                limit = settings.get_questions_limit() or 25
-                
-                # The user wants all results to be "out of 25" (the limit)
-                # regardless of how many questions are actually in the survey.
-                max_score = float(limit)
-                
-                user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
-                # Use class-specific passing score if available
-                passing_score = settings.class4_passing_score or 88
-                
-                if user_input.student_class == 'class1':
-                    passing_score = settings.class1_passing_score
-                elif user_input.student_class == 'class2':
-                    passing_score = settings.class2_passing_score
-                elif user_input.student_class == 'class4':
-                    passing_score = settings.class4_passing_score
-                elif user_input.student_class == 'class2and4':
-                    passing_score = settings.class2and4_passing_score
-                
-                user_input.scoring_success = user_input.scoring_percentage >= passing_score
-            else:
-                user_input.scoring_percentage = 0
-                user_input.scoring_success = False
+            settings = self.env['test.settings'].sudo().get_default_settings()
+            limit = settings.get_questions_limit() or 25
+            
+            # The user wants all results to be "out of 25" (the limit)
+            # regardless of how many questions are actually in the survey.
+            max_score = float(limit)
+            
+            user_input.scoring_percentage = (total_score / max_score * 100) if max_score > 0 else 0
+            # Use class-specific passing score if available
+            passing_score = settings.class4_passing_score or 88
+            
+            if user_input.student_class == 'class1':
+                passing_score = settings.class1_passing_score
+            elif user_input.student_class == 'class2':
+                passing_score = settings.class2_passing_score
+            elif user_input.student_class == 'class4':
+                passing_score = settings.class4_passing_score
+            elif user_input.student_class == 'class2and4':
+                passing_score = settings.class2and4_passing_score
+            
+            user_input.scoring_success = user_input.scoring_percentage >= passing_score
 
             user_input.scoring_answers = answers_count
 

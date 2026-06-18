@@ -163,19 +163,31 @@ class TestStudentPortal(http.Controller):
 
         surveys_html = ''
         if surveys:
+            settings = request.env['test.settings'].sudo().get_default_settings()
+            q_limit = settings.get_questions_limit() or 25
+            default_time = settings.default_time_limit or 0
+            
+            passing_score = settings.class4_passing_score or 88
+            if student_class == 'class1':
+                passing_score = settings.class1_passing_score
+            elif student_class == 'class2':
+                passing_score = settings.class2_passing_score
+            elif student_class == 'class4':
+                passing_score = settings.class4_passing_score
+            elif student_class == 'class2and4':
+                passing_score = settings.class2and4_passing_score
+
             for survey in surveys:
-                limit_text = f"{survey.time_limit} mins" if survey.time_limit else "No limit"
-                avg_score = survey.get_average_score()
+                actual_time_limit = survey.time_limit or default_time
+                limit_text = f"{actual_time_limit} mins" if actual_time_limit else "No limit"
+                display_q_count = min(survey.question_count, q_limit)
                 surveys_html += f'''
                 <div class="test-card">
                     <div class="test-card-header"><h3>{survey.title}</h3></div>
                     <div class="test-card-body">
-                        <t t-set="settings" t-value="request.env['test.settings'].sudo().get_default_settings()"/>
-                        <t t-set="q_limit" t-value="settings.get_questions_limit() or 25"/>
-                        <t t-set="display_q_count" t-value="min(survey.question_count, q_limit)"/>
                         <p>Questions: {display_q_count}</p>
                         <p>Time Limit: <strong>{limit_text}</strong></p>
-                        <p>Avg. Score: {avg_score:.1f}%</p>
+                        <p>Passing Mark: {int(passing_score)}%</p>
                         <div style="margin-top: 15px;"><a href="/test/start/{survey.id}" class="btn btn-start">Start Test</a></div>
                     </div>
                 </div>'''
@@ -242,10 +254,15 @@ class TestStudentPortal(http.Controller):
         <div class="dashboard-header">
             <div class="dashboard-logo"><img src="{company_logo}" alt="Logo"></div>
             <h1>Student Portal</h1>
-            <div style="text-align: right;">
-                <p>Welcome, <strong>{student_name}</strong></p>
-                <p style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">ID: {student_username} | Class: {student_class_label}</p>
-                <a href="/test/register" style="color: white; font-size: 12px; text-decoration: underline;">Switch Profile</a>
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 15px;">
+                <div style="text-align: right;">
+                    <p>Welcome, <strong>{student_name}</strong></p>
+                    <p style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">ID: {student_username} | Class: {student_class_label}</p>
+                    <a href="/test/register" style="color: white; font-size: 12px; text-decoration: underline;">Switch Profile</a>
+                </div>
+                <a href="/web/session/logout?redirect=/web/login" title="Logout" style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </a>
             </div>
         </div>
         <div class="dashboard-body">
@@ -260,7 +277,12 @@ class TestStudentPortal(http.Controller):
     </div>
 </body>
 </html>'''
-        return request.make_response(html, headers=[('Content-Type', 'text/html; charset=utf-8')])
+        return request.make_response(html, headers=[
+            ('Content-Type', 'text/html; charset=utf-8'),
+            ('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'),
+            ('Pragma', 'no-cache'),
+            ('Expires', '0')
+        ])
 
     @http.route(['/test/register'], type='http', auth='public', website=True)
     def test_register(self, **kw):
@@ -450,7 +472,12 @@ class TestStudentPortal(http.Controller):
     </script>
 </body>
 </html>'''
-        return request.make_response(html, headers=[('Content-Type', 'text/html; charset=utf-8')])
+        return request.make_response(html, headers=[
+            ('Content-Type', 'text/html; charset=utf-8'),
+            ('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'),
+            ('Pragma', 'no-cache'),
+            ('Expires', '0')
+        ])
 
     @http.route(['/test/start/<int:survey_id>'], type='http', auth='user', website=True)
     def test_start(self, survey_id, **kw):
@@ -511,12 +538,43 @@ class TestStudentPortal(http.Controller):
             is_admin = request.env.user.has_group('base.group_system')
         except Exception:
             pass
+        assigned = self._get_questions_for_input(user_input.survey_id, user_input)
+        
+        # If the admin added/removed questions after the test was taken, the seeded random list 
+        # might no longer include the questions the user ACTUALLY answered.
+        # We must ensure all answered/visited questions are included in the results!
+        answered_questions = user_input.user_input_line_ids.mapped('question_id')
+        final_questions = request.env['test.question'].sudo().browse()
+        for q in answered_questions:
+            final_questions |= q
+        for q in assigned:
+            if len(final_questions) >= len(assigned):
+                break
+            final_questions |= q
+
+        settings = request.env['test.settings'].sudo().get_default_settings()
+        passing_score = settings.class4_passing_score or 88
+        if user_input.student_class == 'class1':
+            passing_score = settings.class1_passing_score
+        elif user_input.student_class == 'class2':
+            passing_score = settings.class2_passing_score
+        elif user_input.student_class == 'class4':
+            passing_score = settings.class4_passing_score
+        elif user_input.student_class == 'class2and4':
+            passing_score = settings.class2and4_passing_score
+
         values = {
             'page_name': 'test_results',
             'user_input': user_input,
             'is_admin': is_admin,
+            'assigned_questions': final_questions,
+            'passing_score': passing_score,
         }
-        return request.render('test.test_results_page', values)
+        response = request.render('test.test_results_page', values)
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
 
     @http.route(['/test/admin'], type='http', auth='user', website=True)
     def test_admin(self, **kw):
@@ -660,7 +718,12 @@ class TestStudentPortal(http.Controller):
     </div>
 </body>
 </html>'''
-        return request.make_response(html, headers=[('Content-Type', 'text/html; charset=utf-8')])
+        return request.make_response(html, headers=[
+            ('Content-Type', 'text/html; charset=utf-8'),
+            ('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'),
+            ('Pragma', 'no-cache'),
+            ('Expires', '0')
+        ])
 
     def _get_questions_for_input(self, survey, user_input):
         """Return the deterministic question list for a given user_input."""
@@ -709,8 +772,10 @@ class TestStudentPortal(http.Controller):
         }
         if registration:
             vals.update({
+                'student_id': registration.student_id.id if registration.student_id else False,
                 'student_fullname': registration.student_fullname,
                 'student_username': registration.student_username,
+                'student_id_number': registration.student_id_number,
                 'student_class': registration.student_class,
             })
         user_input = request.env['test.user_input'].sudo().create(vals)
@@ -819,7 +884,11 @@ class TestStudentPortal(http.Controller):
             'passing_score': passing_score,
             'seconds_left': max(0, seconds_left),
         }
-        return request.render('test.test_take_question_page', values)
+        response = request.render('test.test_take_question_page', values)
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
 
     # ------------------------------------------------------------------ #
     #  Single, clean answer endpoint                                       #
@@ -859,8 +928,10 @@ class TestStudentPortal(http.Controller):
             }
             if registration:
                 vals.update({
+                    'student_id': registration.student_id.id if registration.student_id else False,
                     'student_fullname': registration.student_fullname,
                     'student_username': registration.student_username,
+                    'student_id_number': registration.student_id_number,
                     'student_class': registration.student_class,
                 })
             user_input = request.env['test.user_input'].sudo().create(vals)
@@ -959,5 +1030,10 @@ class TestStudentPortal(http.Controller):
     def _json(data):
         return request.make_response(
             json.dumps(data),
-            headers=[('Content-Type', 'application/json')]
+            headers=[
+                ('Content-Type', 'application/json'),
+                ('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'),
+                ('Pragma', 'no-cache'),
+                ('Expires', '0')
+            ]
         )
