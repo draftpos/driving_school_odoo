@@ -168,6 +168,62 @@
             </field>
         </record>
 
+        <!-- Test Question Form View -->
+        <record id="test_question_view_form" model="ir.ui.view">
+            <field name="name">test.question.view.form</field>
+            <field name="model">test.question</field>
+            <field name="arch" type="xml">
+                <form string="Question">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="survey_id"/>
+                                <field name="sequence"/>
+                                <field name="question" placeholder="Enter your question"/>
+                                <field name="question_type"/>
+                                <field name="is_scored"/>
+                                <field name="passing_score" invisible="not is_scored"/>
+                                <field name="constr_mandatory"/>
+                                <field name="is_random"/>
+                            </group>
+                            <group>
+                                <field name="question_image" widget="image" class="oe_avatar" options="{'size': [128, 128]}"/>
+                                <field name="question_image_filename" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Answers" name="answers">
+                                <field name="suggested_answer_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="value"/>
+                                        <field name="answer_image" widget="image" class="oe_avatar" options="{'size': [64, 64]}"/>
+                                        <field name="is_correct"/>
+                                        <field name="answer_score"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Test Question List View -->
+        <record id="test_question_view_tree" model="ir.ui.view">
+            <field name="name">test.question.view.list</field>
+            <field name="model">test.question</field>
+            <field name="arch" type="xml">
+                <list string="Questions">
+                    <field name="sequence" widget="handle"/>
+                    <field name="survey_id"/>
+                    <field name="question"/>
+                    <field name="question_type"/>
+                    <field name="is_scored" optional="show"/>
+                </list>
+            </field>
+        </record>
+
         <!-- Test Actions -->
         <record id="action_test_survey" model="ir.actions.act_window">
             <field name="name">Tests</field>
