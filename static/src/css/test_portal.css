@@ -248,16 +248,19 @@
 }
 
 .form-control-test {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
+    border: none;
+    border-bottom: 2px solid #e9ecef;
+    border-radius: 0;
     padding: 12px 15px;
     font-size: 1em;
     transition: border-color 0.3s ease;
+    background-color: transparent;
 }
 
 .form-control-test:focus {
+    outline: none;
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: none;
 }
 
 .btn-register {

@@ -11,15 +11,24 @@ class TestQuestion(models.Model):
     _order = 'sequence, id'
     _check_company_auto = True
 
-    survey_id = fields.Many2one('test.survey', string='Survey', required=True, ondelete='cascade')
+    survey_id = fields.Many2one('test.survey', string='Exam', required=True, ondelete='cascade')
     company_id = fields.Many2one('res.company', string='Company',
         related='survey_id.company_id', store=True)
     question = fields.Text(string='Question', required=True, translate=True)
+    
+    @api.depends('question')
+    def _compute_display_name(self):
+        for record in self:
+            name = record.question
+            if not name:
+                name = f"Question {record.id}"
+            record.display_name = str(name)[:100] + ('...' if len(str(name)) > 100 else '')
+            
     question_type = fields.Selection([
         ('simple_choice', 'Simple Choice'),
         ('multiple_choice', 'Multiple Choice'),
         ('text_box', 'Text Box'),
-    ], string='Question Type', required=True, default='simple_choice')
+    ], string='Question Type', required=True, default='multiple_choice')
     
     question_image = fields.Binary(string='Question Image', attachment=True)
     question_image_filename = fields.Char(string='Question Image Filename')
@@ -27,8 +36,7 @@ class TestQuestion(models.Model):
     sequence = fields.Integer(string='Sequence', default=10)
     is_scored = fields.Boolean(string='Is Scored', default=True)
     constr_mandatory = fields.Boolean(string='Mandatory Answer', default=True)
-    
-    passing_score = fields.Integer(string='Passing Score (%)', default=70)
+    passing_score = fields.Integer(string='Question Points', default=1)
     
     is_random = fields.Boolean(string='Random Selection')
     
@@ -52,6 +60,11 @@ class TestQuestion(models.Model):
             if question.question_type == 'multiple_choice' and len(correct_answers) < 1:
                 raise ValidationError(_("Multiple choice questions must have at least one correct answer."))
 
+    @api.model
+    def _update_all_scores_to_one(self):
+        """Called from XML to ensure all questions have 1 point on module upgrade."""
+        self.search([]).write({'passing_score': 1})
+
 
 class TestQuestionAnswer(models.Model):
     _name = 'test.question.answer'
@@ -63,6 +76,16 @@ class TestQuestionAnswer(models.Model):
     survey_id = fields.Many2one('test.survey', related='question_id.survey_id', store=True, readonly=True)
     value = fields.Text(string='Answer Value', required=True, translate=True)
     value_eng = fields.Text(string='English Version', translate=True)
+    
+    @api.depends('value', 'value_eng')
+    def _compute_display_name(self):
+        for record in self:
+            name = record.value
+            if not name:
+                name = record.value_eng
+            if not name:
+                name = f"Answer {record.id}"
+            record.display_name = str(name)[:100] + ('...' if len(str(name)) > 100 else '')
     
     answer_image = fields.Binary(string='Answer Image', attachment=True)
     answer_image_filename = fields.Char(string='Answer Image Filename')

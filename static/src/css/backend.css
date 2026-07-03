@@ -1,0 +1,51 @@
+/* Custom Backend Styles for Test Module */
+.o_form_view .o_field_widget.o_field_one2many .o_list_table {
+    border: 1px solid #cccccc !important;
+}
+
+.o_form_view .o_field_widget.o_field_one2many .o_list_table th,
+.o_form_view .o_field_widget.o_field_one2many .o_list_table td {
+    border-bottom: 1px solid #e0e0e0 !important;
+    border-right: 1px solid #f0f0f0 !important;
+}
+
+.o_form_view .o_field_widget.o_field_one2many .o_list_table thead th {
+    background-color: #f8f9fa !important;
+    color: #333 !important;
+    font-weight: bold !important;
+}
+
+/* Apply bottom border to all input fields across the backend app */
+.o_form_view .o_input {
+    border: none !important;
+    border-bottom: 1px solid #8f8f8f !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    padding-bottom: 2px !important;
+}
+
+.o_form_view .o_input:focus, .o_form_view .o_input:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border-bottom: 2px solid #000000 !important;
+}
+
+/* Also for dropdowns and many2one fields */
+.o_form_view .o_field_widget .o_input_dropdown .o_input {
+    border: none !important;
+    border-bottom: 1px solid #8f8f8f !important;
+}
+
+/* Make all checkboxes visible without pointing cursor (hover) */
+.o_list_table .o_list_record_selector,
+tbody .o_list_record_selector {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.o_field_boolean input[type="checkbox"],
+.form-check-input,
+.o_list_record_selector input[type="checkbox"] {
+    opacity: 1 !important;
+    border: 2px solid black !important;
+}

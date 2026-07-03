@@ -23,12 +23,16 @@ user inputs, and scoring capabilities.
         'views/test_settings_views.xml',
         'views/portal_templates.xml',
         'data/default_student_data.xml',
+        'data/update_data.xml',
 ],
     'assets': {
         'web.assets_frontend': [
             'test/static/src/css/test_portal.css',
             'test/static/src/css/custom_register.css',
             'test/static/src/js/test_portal.js',
+        ],
+        'web.assets_backend': [
+            'test/static/src/css/backend.css',
         ],
     },
     'demo': [

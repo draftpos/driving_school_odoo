@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- This function will be called on every module upgrade/install to ensure scores are 1 -->
+        <function model="test.question" name="_update_all_scores_to_one"/>
+    </data>
+</odoo>

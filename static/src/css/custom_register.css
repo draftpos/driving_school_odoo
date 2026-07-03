@@ -124,18 +124,20 @@ header.o_navbar, .o_main_navbar, .o_debug_manager {
 .custom-form-group input {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border: none;
+    border-bottom: 2px solid #e0e0e0;
+    border-radius: 0;
     font-size: 15px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     box-sizing: border-box;
+    background-color: transparent;
 }
 
 .custom-form-group input:focus {
     outline: none;
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: none;
 }
 
 .custom-form-group input::placeholder {
@@ -459,37 +461,41 @@ header.o_navbar, .o_main_navbar, .o_debug_manager {
 .test-answer-input {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border: none;
+    border-bottom: 2px solid #e0e0e0;
+    border-radius: 0;
     font-size: 15px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     box-sizing: border-box;
+    background-color: transparent;
 }
 
 .test-answer-input:focus {
     outline: none;
     border-color: #4a90d9;
-    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+    box-shadow: none;
 }
 
 .test-answer-textarea {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border: none;
+    border-bottom: 2px solid #e0e0e0;
+    border-radius: 0;
     font-size: 15px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     box-sizing: border-box;
     min-height: 120px;
     resize: vertical;
+    background-color: transparent;
 }
 
 .test-answer-textarea:focus {
     outline: none;
     border-color: #4a90d9;
-    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+    box-shadow: none;
 }
 
 /* Radio/Checkbox Options */
