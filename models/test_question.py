@@ -56,6 +56,7 @@ class TestQuestion(models.Model):
 class TestQuestionAnswer(models.Model):
     _name = 'test.question.answer'
     _description = 'Test Question Answer'
+    _rec_name = 'value'
     _order = 'question_id, sequence, id'
 
     question_id = fields.Many2one('test.question', string='Question', required=True, ondelete='cascade')
