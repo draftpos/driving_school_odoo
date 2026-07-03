@@ -21,7 +21,7 @@ class TestQuestion(models.Model):
         for record in self:
             name = record.question
             if not name:
-                name = f"Question {record.id}"
+                name = _("New Question")
             record.display_name = str(name)[:100] + ('...' if len(str(name)) > 100 else '')
             
     question_type = fields.Selection([
@@ -87,7 +87,7 @@ class TestQuestionAnswer(models.Model):
             if not name:
                 name = record.value_eng
             if not name:
-                name = f"Answer {record.id}"
+                name = _("New Answer")
             record.display_name = str(name)[:100] + ('...' if len(str(name)) > 100 else '')
     
     answer_image = fields.Binary(string='Answer Image', attachment=True)
