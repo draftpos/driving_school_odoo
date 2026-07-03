@@ -38,14 +38,26 @@
 
 /* Make all checkboxes visible without pointing cursor (hover) */
 .o_list_table .o_list_record_selector,
-tbody .o_list_record_selector {
+tbody .o_list_record_selector,
+.o_list_record_selector {
     opacity: 1 !important;
     visibility: visible !important;
 }
 
-.o_field_boolean input[type="checkbox"],
+/* Extremely aggressive rules for black borders on all checkboxes */
+input[type="checkbox"],
 .form-check-input,
-.o_list_record_selector input[type="checkbox"] {
+.o_field_boolean input[type="checkbox"],
+.o_list_record_selector input[type="checkbox"],
+.o-checkbox input {
+    border: 2px solid #000000 !important;
+    border-color: #000000 !important;
     opacity: 1 !important;
-    border: 2px solid black !important;
+    visibility: visible !important;
+}
+
+/* Some Odoo versions use pseudo elements for custom checkboxes */
+.form-check-input::before,
+.form-check-input::after {
+    border-color: #000000 !important;
 }
