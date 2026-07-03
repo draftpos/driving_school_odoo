@@ -343,23 +343,43 @@
     line-height: 1.6;
 }
 
-/* Form Check Styling */
-.form-check-test {
+/* Test Option Styling */
+.test-option {
+    display: flex;
+    align-items: center;
     padding: 12px 15px;
     border: 2px solid #e9ecef;
     border-radius: 8px;
     margin-bottom: 10px;
     transition: all 0.2s ease;
     cursor: pointer;
+    background: white;
 }
 
-.form-check-test:hover {
+.test-option:hover {
     border-color: #667eea;
     background: #f8f9ff;
 }
 
-.form-check-test input:checked + label {
-    font-weight: 600;
+.test-option input[type="radio"],
+.test-option input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    margin-right: 15px;
+    cursor: pointer;
+    border: 2px solid #000000 !important;
+    accent-color: #667eea;
+}
+
+.test-option label {
+    margin: 0;
+    cursor: pointer;
+    flex-grow: 1;
+    font-size: 1.1em;
+}
+
+.test-option input:checked + label {
+    font-weight: 700;
     color: #667eea;
 }
 

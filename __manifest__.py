@@ -2,7 +2,7 @@
 {
     'name': "Driving School Test",
     'category': 'Generic Modules/Tools',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.0.2',
     'summary': 'Test Application',
     'description': """Test Application - Similar to Survey Module
 This module provides test/assessment functionality with questions,
