@@ -63,7 +63,10 @@ class TestQuestion(models.Model):
     @api.model
     def _update_all_scores_to_one(self):
         """Called from XML to ensure all questions have 1 point on module upgrade."""
-        self.search([]).write({'passing_score': 1})
+        questions = self.search([])
+        questions.write({'passing_score': 1})
+        for q in questions:
+            q._compute_correct_answer()
 
 
 class TestQuestionAnswer(models.Model):
