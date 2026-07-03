@@ -9,7 +9,6 @@
                     <meta name="viewport" content="width=device-width, initial-scale=1"/>
                     <title t-esc="title or 'Test'"/>
                     <t t-call-assets="web.assets_frontend"/>
-                    <t t-call="test.test_portal_css"/>
                     <link rel="stylesheet" href="/test/static/src/css/custom_register.css"/>
                     <script type="text/javascript" src="/test/static/src/js/test_portal.js"></script>
                     <t t-out="head or ''"/>
@@ -92,7 +91,6 @@
 <!-- Student Dashboard Template -->
         <template id="test_student_dashboard" name="My Tests">
             <t t-call="website.layout">
-                <link rel="stylesheet" type="text/css" href="/test/static/src/css/test_portal.css"/>
                 <div class="wrap">
                     <div class="container">
                         <h1 class="mt-4">My Tests</h1>
