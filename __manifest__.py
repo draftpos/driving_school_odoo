@@ -26,7 +26,7 @@ user inputs, and scoring capabilities.
         'data/update_data.xml',
 ],
     'assets': {
-        'web.assets_frontend': [
+        'test.assets_test': [
             'test/static/src/css/test_portal.css',
             'test/static/src/css/custom_register.css',
             'test/static/src/js/test_portal.js',

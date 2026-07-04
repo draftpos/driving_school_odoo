@@ -9,8 +9,7 @@
                     <meta name="viewport" content="width=device-width, initial-scale=1"/>
                     <title t-esc="title or 'Test'"/>
                     <t t-call-assets="web.assets_frontend"/>
-                    <link rel="stylesheet" href="/test/static/src/css/custom_register.css"/>
-                    <script type="text/javascript" src="/test/static/src/js/test_portal.js"></script>
+                    <t t-call-assets="test.assets_test"/>
                     <t t-out="head or ''"/>
                 </head>
                 <body style="height: 100vh; width: 100vw; overflow: hidden; margin: 0; padding: 0; background: #f8fafc; font-family: 'Inter', system-ui, sans-serif;">
@@ -29,6 +28,7 @@
 <!-- Custom Registration Template without Header/Footer - Uses web.login_layout which already has no header/footer -->
         <template id="test_register_page" name="Register Student">
             <t t-call="web.login_layout">
+                <t t-call-assets="test.assets_test"/>
                 <h2 class="text-center mb-4">Student Registration</h2>
                 <p class="text-center text-muted mb-4">Please fill in your details to continue</p>
                 
@@ -91,6 +91,7 @@
 <!-- Student Dashboard Template -->
         <template id="test_student_dashboard" name="My Tests">
             <t t-call="website.layout">
+                <t t-call-assets="test.assets_test"/>
                 <div class="wrap">
                     <div class="container">
                         <h1 class="mt-4">My Tests</h1>
@@ -316,6 +317,7 @@
 <!-- Test Question Template with Custom Numbering -->
         <template id="test_question_page" name="Test Question">
             <t t-call="website.layout">
+                <t t-call-assets="test.assets_test"/>
                 <div class="wrap">
                     <div class="container">
                         <!-- Progress Bar at Top -->
