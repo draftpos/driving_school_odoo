@@ -41,5 +41,4 @@ user inputs, and scoring capabilities.
     'installable': True,
     'auto_install': False,
     'application': True,
-    'post_init_hook': '_hide_apps',
 }
