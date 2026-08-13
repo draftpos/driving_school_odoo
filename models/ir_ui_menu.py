@@ -19,6 +19,8 @@ class IrUiMenu(models.Model):
             'contacts.menu_contacts',
             'website.menu_website_configuration',
             'spreadsheet_dashboard.spreadsheet_dashboard_menu_root',
+            'hr.menu_hr_root',
+            'stock.menu_stock_root',
         ]
         
         hidden_ids = set()
